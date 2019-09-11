@@ -1,0 +1,9 @@
+## Interface: 11302
+## Title: Adapt
+## Notes: This addon animates the static portraits of (nearly) any UI.
+## Author: Gello
+## Version: 2.3.0-classic
+## SavedVariables: AdaptSettings
+Adapt.xml
+Adapt.lua
+Options.lua
