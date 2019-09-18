@@ -1,0 +1,12 @@
+## Interface: 11302
+## Author: Peter Getov
+## Version: 1.9
+## Title: |cff00aeffCharacterStatsClassic|r
+## Notes: Advanced Character Stats
+## DefaultState:  enabled
+## SavedVariables: CharacterStatsClassicDB
+## SavedVariablesPerCharacter: CharacterStatsClassicCharacterDB
+
+CharacterStatsClassicUI.lua
+CharacterStatsClassicCore.lua
+CharacterStatsClassicUtils.lua
