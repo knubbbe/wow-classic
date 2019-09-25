@@ -1,4 +1,4 @@
-ClassicLFG = LibStub("AceAddon-3.0"):NewAddon("ClassicLFG", "AceConsole-3.0")
+﻿ClassicLFG = LibStub("AceAddon-3.0"):NewAddon("ClassicLFG", "AceConsole-3.0")
 ClassicLFG.AceGUI = LibStub("AceGUI-3.0")
 ClassicLFG.Locale = LibStub("AceLocale-3.0"):GetLocale("ClassicLFG")
 ClassicLFG.MinimapIcon = LibStub("LibDBIcon-1.0")
