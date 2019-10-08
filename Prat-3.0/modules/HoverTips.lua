@@ -139,9 +139,8 @@ Prat:AddModuleToLoad(function()
   
   L = {
 	["HoverTips"] = {
-		["module_desc"] = "Показывает подсказку при наведении курсора на ссылку в чате",
-		--[[Translation missing --]]
-		["module_name"] = "Hover Tips",
+		["module_desc"] = "Показывает подсказку при наведении курсора на ссылку в чате ",
+		["module_name"] = "Советы по наведению курсора",
 	}
 }
 

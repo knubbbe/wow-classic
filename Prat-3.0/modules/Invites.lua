@@ -154,14 +154,14 @@ Prat:AddModuleToLoad(function()
     
   L = {
 	["Invites"] = {
-		["Enable Alt-Invite"] = "включить Alt-приглашение",
-		["Enable Invite Links"] = "Показать ссылку \"приглашения\"",
-		["module_desc"] = "Опции простого приглашения игроков в группу",
-		["module_name"] = "Приглашения",
-		--[[Translation missing --]]
-		["Toggle group invites by alt-clicking hyperlinked keywords like 'invite'."] = "Toggle group invites by alt-clicking hyperlinked keywords like 'invite'.",
-		--[[Translation missing --]]
-		["Toggle group invites by alt-clicking on player name."] = "Toggle group invites by alt-clicking on player name.",
+		["Enable Alt-Invite"] = "включить Alt-приглашение ",
+		["Enable Invite Links"] = "Показать ссылку \"приглашения\" ",
+		["module_desc"] = "Опции простого приглашения игроков в группу ",
+		["module_name"] = "Приглашения ",
+		["Toggle group invites by alt-clicking hyperlinked keywords like 'invite'."] = [=[Переключить группу приглашений, нажимая альт-клик по гиперссылкам, таким как «пригласить».
+]=],
+		["Toggle group invites by alt-clicking on player name."] = [=[Переключить группу приглашений, нажав Alt на имя игрока.
+]=],
 	}
 }
 

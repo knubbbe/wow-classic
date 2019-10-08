@@ -1,6 +1,7 @@
 # Prat 3.0
 
-## [3.2.31-1-g2e582e3](https://github.com/sylvanaar/prat-3-0/tree/2e582e3c521414c24bac0d32e562144fdcf27604) (2019-08-31)
-[Full Changelog](https://github.com/sylvanaar/prat-3-0/compare/3.2.31...2e582e3c521414c24bac0d32e562144fdcf27604)
+## [3.7.36-2-g374a268](https://github.com/sylvanaar/prat-3-0/tree/374a2685c2f4a552ca3e4b9075d780b31da4d096) (2019-09-16)
+[Full Changelog](https://github.com/sylvanaar/prat-3-0/compare/3.7.36...374a2685c2f4a552ca3e4b9075d780b31da4d096)
 
+- Update README.md  
 - Update README.md  

@@ -1,8 +1,8 @@
 # GatherMate2
 
-## [1.44.4-3-g7907d17](https://github.com/Nevcairiel/GatherMate2/tree/7907d1776f9dc16fe26fbca9b0408b11a1e2d786) (2019-08-12)
-[Full Changelog](https://github.com/Nevcairiel/GatherMate2/compare/1.44.4...7907d1776f9dc16fe26fbca9b0408b11a1e2d786)
+## [1.45.5-1-gab6216a](https://github.com/Nevcairiel/GatherMate2/tree/ab6216a7d3257ca386dc00d9cde42fe78330b4bb) (2019-10-06)
+[Full Changelog](https://github.com/Nevcairiel/GatherMate2/compare/1.45.5...ab6216a7d3257ca386dc00d9cde42fe78330b4bb)
 
-- Disable WoWI upload for classic, and explicitly flag build version  
-- Merge branch 'master' into classic  
-- Preliminary support for WoW Classic  
+- Use a different spell to get the "Herbalism" string  
+    - On retail we can use a different spell to get the skill name directly  
+    - On classic this fixes the string for non-ASCII names  

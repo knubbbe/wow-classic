@@ -24,6 +24,10 @@ local function GetLSMNameByTexture(lsmType, texturePath)
 end
 
 local function CreateUnitTabGroup(unitID, localizedUnit, order)
+    local function ModuleIsDisabled()
+        return not ClassicCastbarsDB[unitID].enabled
+    end
+
     return {
         name = format("%s %s", L.CASTBAR, localizedUnit),
         order = order,
@@ -52,18 +56,28 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         desc = L.TOGGLE_CASTBAR_TOOLTIP,
                         width = "full", -- these have to be full to not truncate text in non-english locales
                         type = "toggle",
+                        confirm = function()
+                            return unitID == "player" and ClassicCastbarsDB[unitID].enabled and L.REQUIRES_RESTART or false
+                        end,
                         set = function(_, value)
                             ClassicCastbarsDB[unitID].enabled = value
                             ClassicCastbars:ToggleUnitEvents(true)
+                            if unitID == "player" then
+                                if value == false then
+                                    ReloadUI()
+                                end
+                                ClassicCastbars:SkinPlayerCastbar()
+                            end
                         end,
                     },
                     autoPosition = {
                         order = 2,
                         width = "full",
                         name = L.AUTO_POS_BAR,
-                        desc = L.AUTO_POS_BAR_TOOLTIP,
+                        desc = unitID ~= "player" and L.AUTO_POS_BAR_TOOLTIP or "",
                         type = "toggle",
-                        hidden = unitID == "nameplate"
+                        hidden = unitID == "nameplate" or unitID == "party",
+                        disabled = ModuleIsDisabled,
                     },
                     showTimer = {
                         order = 3,
@@ -71,13 +85,16 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         name = L.SHOW_TIMER,
                         desc = L.SHOW_TIMER_TOOLTIP,
                         type = "toggle",
+                        disabled = ModuleIsDisabled,
                     },
                     showCastInfoOnly = {
                         order = 5,
                         width = "full",
                         name = L.SHOW_CAST_INFO_ONLY,
                         desc = L.SHOW_CAST_INFO_ONLY_TOOLTIP,
+                        hidden = unitID == "player",
                         type = "toggle",
+                        disabled = ModuleIsDisabled,
                     },
                     pushbackDetect = {
                         order = 6,
@@ -85,17 +102,25 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         name = L.PUSHBACK,
                         desc = L.PUSHBACK_TOOLTIP,
                         type = "toggle",
-                        set = function(_, value) -- temp, we'll remove this option later
+                        hidden = unitID == "player",
+                        set = function(_, value)
                             ClassicCastbarsDB.pushbackDetect = value
                         end,
                         get = function() return ClassicCastbarsDB.pushbackDetect end,
+                        disabled = ModuleIsDisabled,
                     },
-                    simpleStyle = {
+                    movementDetect = {
                         order = 7,
                         width = "full",
-                        name = L.SIMPLE_STYLE,
-                        desc = L.SIMPLE_STYLE_TOOLTIP,
+                        name = L.MOVEMENT_DETECT,
+                        desc = L.MOVEMENT_DETECT_TOOLTIP,
                         type = "toggle",
+                        set = function(_, value)
+                            ClassicCastbarsDB.movementDetect = value
+                        end,
+                        get = function() return ClassicCastbarsDB.movementDetect end,
+                        hidden = unitID == "player",
+                        disabled = ModuleIsDisabled,
                     },
                 },
             },
@@ -107,6 +132,7 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                 name = L.CASTBAR_SIZING,
                 type = "group",
                 inline = false,
+                disabled = ModuleIsDisabled,
 
                 args = {
                     width = {
@@ -134,8 +160,27 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         name = L.FONT_SIZE,
                         desc = L.FONT_SIZE_TOOLTIP,
                         type = "range",
+                        width = "double",
                         min = 6,
                         max = 30,
+                        bigStep = 1,
+                    },
+                    textPositionX = {
+                        order = 4,
+                        name = L.TEXT_POS_X,
+                        desc = L.POSXY_TOOLTIP,
+                        type = "range",
+                        min = -1000,
+                        max = 1000,
+                        bigStep = 1,
+                    },
+                    textPositionY = {
+                        order = 5,
+                        name = L.TEXT_POS_Y,
+                        desc = L.POSXY_TOOLTIP,
+                        type = "range",
+                        min = -1000,
+                        max = 1000,
                         bigStep = 1,
                     },
                 },
@@ -148,9 +193,23 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                 name = L.CASTBAR_ICON,
                 type = "group",
                 inline = false,
+                disabled = ModuleIsDisabled,
+
                 args = {
-                    iconSize = {
+                    showIcon = {
                         order = 1,
+                        width = "full",
+                        name = L.ICON_SHOW,
+                        type = "toggle",
+                    },
+                    hideIconBorder = {
+                        order = 2,
+                        width = "full",
+                        name = L.ICON_HIDE_BORDER,
+                        type = "toggle",
+                    },
+                    iconSize = {
+                        order = 3,
                         name = L.ICON_SIZE,
                         desc = L.ICON_SIZE_TOOLTIP,
                         type = "range",
@@ -160,18 +219,18 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         bigStep = 1,
                     },
                     iconPositionX = {
-                        order = 2,
+                        order = 4,
                         name = L.ICON_POS_X,
-                        desc = L.ICON_POS_TOOLTIP,
+                        desc = L.POSXY_TOOLTIP,
                         type = "range",
                         min = -1000,
                         max = 1000,
                         bigStep = 5,
                     },
                     iconPositionY = {
-                        order = 3,
+                        order = 5,
                         name = L.ICON_POS_Y,
-                        desc = L.ICON_POS_TOOLTIP,
+                        desc = L.POSXY_TOOLTIP,
                         type = "range",
                         min = -1000,
                         max = 1000,
@@ -187,6 +246,7 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                 name = L.CASTBAR_COLORS,
                 type = "group",
                 inline = false,
+                disabled = ModuleIsDisabled,
                 get = function(info)
                     return unpack(ClassicCastbarsDB[info[1]][info[3]])
                 end,
@@ -224,6 +284,12 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         hasAlpha = true,
                         type = "color",
                     },
+                    statusBackgroundColor = {
+                        name = L.STATUS_BG_COLOR,
+                        order = 5,
+                        hasAlpha = true,
+                        type = "color",
+                    }
                 },
             },
 
@@ -234,6 +300,7 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                 name = L.CASTBAR_TEXTURE_FONT,
                 type = "group",
                 inline = false,
+                disabled = ModuleIsDisabled,
 
                 args = {
                     castFont = {
@@ -286,8 +353,17 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                             ClassicCastbars_TestMode:OnOptionChanged(unitID)
                         end,
                     },
-                    notes = {
+                    frameLevel = {
                         order = 4,
+                        name = L.FRAME_LEVEL,
+                        desc = L.FRAME_LEVEL_DESC,
+                        type = "range",
+                        min = 0,
+                        max = 99,
+                        bigStep = 5,
+                    },
+                    notes = {
+                        order = 5,
                         type = "description",
                         name = L.LSM_TEXTURE_NOTE,
                     },
@@ -305,7 +381,6 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                         order = 1,
                         width = 1.4,
                         name = format("%s %s", L.TEST, localizedUnit),
-                        desc = unitID == "target" and L.TEST_TARGET_TOOLTIP or L.TEST_PLATE_TOOLTIP,
                         type = "execute",
                         disabled = function() return not ClassicCastbarsDB[unitID].enabled end,
                         func = function()
@@ -314,7 +389,7 @@ local function CreateUnitTabGroup(unitID, localizedUnit, order)
                     },
                     notes = {
                         order = 2,
-                        name = unitID == "target" and L.TEST_TARGET_TOOLTIP or L.TEST_PLATE_TOOLTIP,
+                        name = unitID == "target" and L.TEST_TARGET_TOOLTIP or unitID == "nameplate" and L.TEST_PLATE_TOOLTIP or "",
                         type = "description",
                     },
                 },
@@ -332,6 +407,8 @@ local function GetOptionsTable()
         args = {
             target = CreateUnitTabGroup("target", L.TARGET, 1),
             nameplate = CreateUnitTabGroup("nameplate", L.NAMEPLATE, 2),
+            party = CreateUnitTabGroup("party", L.PARTY, 3),
+            player = CreateUnitTabGroup("player", L.PLAYER, 4),
 
             resetAllSettings = {
                 order = 3,
@@ -339,11 +416,18 @@ local function GetOptionsTable()
                 type = "execute",
                 confirm = true,
                 func = function()
+                    local shouldReloadUI = ClassicCastbars.db.player.enabled
                     -- Reset savedvariables to default
                     ClassicCastbarsDB = CopyTable(ClassicCastbars.defaultConfig)
                     ClassicCastbars.db = ClassicCastbarsDB -- update pointer
                     ClassicCastbars_TestMode:OnOptionChanged("target")
                     ClassicCastbars_TestMode:OnOptionChanged("nameplate")
+                    ClassicCastbars_TestMode:OnOptionChanged("party")
+                    ClassicCastbars_TestMode:OnOptionChanged("player")
+
+                    if shouldReloadUI then
+                        ReloadUI()
+                    end
                 end,
             },
         },

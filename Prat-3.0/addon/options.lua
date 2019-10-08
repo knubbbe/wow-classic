@@ -239,7 +239,6 @@ L = {
 	["modulecontrol_name"] = "Настройка модулей",
 	["prat"] = "Prat",
 	["reload_required"] = "Эта настройка вступит в силу только после %s вашего интерфейса.",
-	--[[Translation missing --]]
 	["unloaded_desc"] = "Module is not loaded, load it to see description"
 }
 

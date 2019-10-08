@@ -7,24 +7,46 @@ local Display = nil
 -- gatherevents if a flag for wether we are listening to events
 local prevSpell, curSpell, foundTarget, gatherEvents, ga
 
+local WoWClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+
 --[[
 Convert for 2.4 spell IDs
 ]]
 local miningSpell = (GetSpellInfo(2575))
+local miningSpell2 = (GetSpellInfo(195122))
 local herbSpell = (GetSpellInfo(2366))
-local herbSkill = (string.gsub((GetSpellInfo(9134)),"%A",""))
+local herbSkill = WoWClassic and (GetSpellInfo(9134)) or ((GetSpellInfo(170691)) or (string.gsub((GetSpellInfo(9134)),"%A","")))
 local fishSpell = (GetSpellInfo(7620)) or (GetSpellInfo(131476))
+local gasSpell = (GetSpellInfo(30427))
+--local gasSpell = (GetSpellInfo(48929))  --other gasspell
 local openSpell = (GetSpellInfo(3365))
 local openNoTextSpell = (GetSpellInfo(22810))
 local pickSpell = (GetSpellInfo(1804))
+local archSpell = (GetSpellInfo(73979)) -- Searching for Artifacts spell
+local sandStormSpell = (GetSpellInfo(93473)) -- Sandstorm spell cast by the camel
+local loggingSpell = (GetSpellInfo(167895))
 
-local spells = {
+local spells = WoWClassic and {
 	[miningSpell] = "Mining",
 	[herbSpell] = "Herb Gathering",
 	[fishSpell] = "Fishing",
 	[openSpell] = "Treasure",
 	[openNoTextSpell] = "Treasure",
 	[pickSpell] = "Treasure",
+}
+or
+{ -- spellname to "database name"
+	[miningSpell] = "Mining",
+	[miningSpell2] = "Mining",
+	[herbSpell] = "Herb Gathering",
+	[fishSpell] = "Fishing",
+	[gasSpell] = "Extract Gas",
+	[openSpell] = "Treasure",
+	[openNoTextSpell] = "Treasure",
+	[pickSpell] = "Treasure",
+	[archSpell] = "Archaeology",
+	[sandStormSpell] = "Treasure",
+	[loggingSpell] = "Logging",
 }
 local tooltipLeftText1 = _G["GameTooltipTextLeft1"]
 local strfind, stringmatch = string.find, string.match
@@ -170,12 +192,14 @@ end
 function Collector:UIError(event,token,msg)
 	local what = tooltipLeftText1:GetText();
 	if not what then return end
-	if strfind(msg, miningSpell) then
+	if strfind(msg, miningSpell) or (miningSpell2 and strfind(msg, miningSpell2)) then
 		self:addItem(miningSpell,what)
 	elseif strfind(msg, herbSkill) then
 		self:addItem(herbSpell,what)
 	elseif strfind(msg, pickSpell) or strfind(msg, openSpell) then -- locked box or failed pick
 		self:addItem(openSpell, what)
+	elseif strfind(msg, NL["Lumber Mill"]) then -- timber requires lumber mill
+		self:addItem(loggingSpell, what)
 	end
 end
 
