@@ -1,0 +1,10 @@
+lightweight tag 1542bcfd6394a31913242e62fa213707a4166e75 1.1.3
+Author:	Domenik Irrgang <domenikirrgang@gmail.com>
+Date:	Tue Oct 15 18:59:12 2019 +0200
+
+commit 1542bcfd6394a31913242e62fa213707a4166e75
+Author: Domenik Irrgang <domenikirrgang@gmail.com>
+Date:   Tue Oct 15 18:59:12 2019 +0200
+
+    Added Dire Maul
+
