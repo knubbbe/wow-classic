@@ -1,0 +1,204 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
+
+	<Frame name="LFGFrame" inherits="ButtonFrameTemplate" parent="UIParent" toplevel="true" hidden="true" enableMouse="true" movable="true">
+		<Size>
+			<AbsDimension x="384" y="424"/>
+		</Size>
+		<Frames>
+			<Frame name="$parentDropDownMenu41" parentKey="dropDownMenu" inherits="UIDropDownMenuTemplate">
+				<Size x="40" y="28"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" x="50" y="-28"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad function="LFGFrameDropDownList_OnLoad"/>
+					<!--
+					<OnShow function="LFGFrameDropDownList_OnShow"/>
+					-->
+				</Scripts>
+			</Frame>
+
+			<Frame name="$parentNotifyToggleFrame">
+				<Size>
+					<AbsDimension x="112" y="23"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPRIGHT">
+						<Offset>
+							<AbsDimension x="-10" y="-30"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture name="$parentRight" file="Interface\ClassTrainerFrame\UI-ClassTrainer-FilterBorder">
+							<Size>
+								<AbsDimension x="12" y="28"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPRIGHT"/>
+							</Anchors>
+							<TexCoords left="0.90625" right="1.0" top="0" bottom="1.0"/>
+						</Texture>
+						<Texture name="$parentMiddle" file="Interface\ClassTrainerFrame\UI-ClassTrainer-FilterBorder">
+							<Size>
+								<AbsDimension x="80" y="28"/>
+							</Size>
+							<Anchors>
+								<Anchor point="RIGHT" relativeTo="$parentRight" relativePoint="LEFT"/>
+							</Anchors>
+							<TexCoords left="0.09375" right="0.90625" top="0" bottom="1.0"/>
+						</Texture>
+						<Texture name="$parentLeft" file="Interface\ClassTrainerFrame\UI-ClassTrainer-FilterBorder">
+							<Size>
+								<AbsDimension x="12" y="28"/>
+							</Size>
+							<Anchors>
+								<Anchor point="RIGHT" relativeTo="$parentMiddle" relativePoint="LEFT"/>
+							</Anchors>
+							<TexCoords left="0" right="0.09375" top="0" bottom="1.0"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<!--
+				<Scripts>
+					<OnEnter function="LFGFrameNotifyToggleFrame_OnEnter"/>
+					<OnLeave function="LFGFrameNotifyToggleFrame_OnLeave"/>
+				</Scripts>
+				-->
+				<Frames>
+					<CheckButton name="$parentCheckButton" virtual="true" parentKey="checkButton">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors>
+							<Anchor point="RIGHT">
+								<Offset>
+									<AbsDimension x="-8" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentText" inherits="GameFontHighlightSmall" text="Notify">
+									<Anchors>
+										<Anchor point="RIGHT" relativePoint="LEFT">
+											<Offset>
+												<AbsDimension x="-10" y="1"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<!--
+						<NormalFont style="GameFontHighlightSmall"/>
+						<DisabledFont style="GameFontDisableSmall"/>
+						<HighlightFont style="GameFontHighlightSmall"/>
+						-->
+						<Scripts>
+							<OnLoad function="LFGFrameNotifyToggleFrameCheckButton_OnLoad"/>
+							<OnClick function="LFGFrameNotifyToggleFrameCheckButton_OnClick"/>
+							<OnEnter function="LFGFrameNotifyToggleFrameCheckButton_OnEnter"/>
+							<OnLeave function="GameTooltip_Hide"/>
+
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
+					</CheckButton>
+				</Frames>
+			</Frame>
+
+			<ScrollFrame name="$parentScrollFrame" inherits="ScrollListFrameTemplate" parentKey="scrollFrame">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentInset" x="2" y="-3"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parentInset" x="-22" y="2"/>
+				</Anchors>
+				<!-- You must implement the following yourself: -->
+				<Scripts>
+					<OnShow function="ScrollListDataSource_InitializeScrollList"/>
+				</Scripts>
+			</ScrollFrame>
+
+			<Frame name="$parentStatusBar" parentKey="statusBar" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentBtnCornerLeft" x="0" y="0"/>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parentBtnCornerRight" x="0" y="0"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentText" parentKey="text" inherits="GameFontHighlightSmall" justifyH="LEFT" maxLines="1" text="" hidden="false">
+							<Size>
+								<AbsDimension x="0" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOPLEFT" x="25"/>
+								<Anchor point="BOTTOMRIGHT" x="-30"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<CheckButton name="$parentCheckButton" virtual="true" parentKey="checkButton" hidden="false">
+						<Size>
+							<AbsDimension x="20" y="20"/>
+						</Size>
+						<Anchors>
+							<Anchor point="LEFT">
+								<Offset>
+									<AbsDimension x="6" y="-1"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Layers>
+							<Layer level="ARTWORK">
+								<FontString name="$parentText" inherits="GameFontHighlightSmall" text="Notify">
+									<Anchors>
+										<Anchor point="RIGHT" relativePoint="LEFT">
+											<Offset>
+												<AbsDimension x="-10" y="1"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</FontString>
+							</Layer>
+						</Layers>
+						<!--
+						<NormalFont style="GameFontHighlightSmall"/>
+						<DisabledFont style="GameFontDisableSmall"/>
+						<HighlightFont style="GameFontHighlightSmall"/>
+						-->
+
+						<!--
+						<Scripts>
+							<OnLoad function="LFGFrameNotifyToggleFrameCheckButton_OnLoad"/>
+							<OnClick function="LFGFrameNotifyToggleFrameCheckButton_OnClick"/>
+							<OnEnter function="LFGFrameNotifyToggleFrameCheckButton_OnEnter"/>
+							<OnLeave function="GameTooltip_Hide"/>
+						</Scripts>
+						-->
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
+					</CheckButton>
+
+				</Frames>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				LFGFrame_OnLoad(self)
+				SetPortraitToTexture(LFGFrame.portrait, "Interface\\FriendsFrame\\Battlenet-Portrait")
+				SetPortraitTexture(LFGFrame.portrait, "player")
+			</OnLoad>
+			<OnShow function="LFGFrame_OnShow"/>
+			<OnHide function="LFGFrame_OnHide"/>
+		</Scripts>
+	</Frame>
+
+</Ui>
