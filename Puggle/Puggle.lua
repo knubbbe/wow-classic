@@ -375,7 +375,7 @@ function Puggle_OnEvent(event, ...)
 					if p.name == Puggle_enc(UnitName("party"..i)) then pId = ip end
 				end
 
-				if pId ~= -1 then
+				if pId ~= -1 and puglocal_curGroupId ~= -1 then
 		
 					-- check where player is listed in group
 					local pInd = -1  --check if doesn't already exist
@@ -423,7 +423,7 @@ end
 -------------------------------------------------------------------------
 
 function Puggle_ExtractWho(arg1) 
-	arg1 = gsub(arg1, "Night Elf", "NightElf")
+	arg1 = gsub(arg1, "Night Elf", "NightElf") --transform minus space
 	t = Puggle_split(arg1, " ");
 	local toon  = string.gsub(t[1], "|", "!")	-- unescape player link
 	toon  = string.sub(toon, string.find(toon, "%[") +1, string.len(toon)) -- remove front
@@ -431,6 +431,7 @@ function Puggle_ExtractWho(arg1)
 	
 	--find the toons request and update his level/class
 	for iu, u in pairs(puglocal_users) do
+		--print(string.gsub(u, toon..":0:0:", toon..":"..t[3]..":"..string.upper(t[5])..":"))
 		puglocal_users[iu] = string.gsub(u, toon..":0:0:", toon..":"..t[3]..":"..string.upper(t[5])..":"); 	
 	end
 	Puggle_UpdateList()
@@ -802,7 +803,7 @@ function Puggle_displayPlayers()
 							Puggle_maxTime = ig 
 							Puggle_maxGuild = Puggle_dec(gp.guild)
 							Puggle_maxStar = tonumber(Puggle_dec(gp.star))
-							Puggle_maxFrom = Puggle_dec(Puggle_pastPlayers[from].name)
+							if (from ~= 0) then Puggle_maxFrom = Puggle_dec(Puggle_pastPlayers[from].name) end
 						end
 					end
 				end
@@ -1660,15 +1661,6 @@ function Puggle_requestWho(whofor)
 		puglocal_whoOk = false
 		puglocal_whoTime = time()
 		Puggle_UpdateList()
-
---[[		if wholib then
-			wholib:Who("x-".. whofor, {
-				queue = wholib.WHOLIB_QUEUE_QUIET,
-				flags = 0,
-				callback = Puggle_ExtractWhoLibResults
-			})
-		else
---]]
 
 		if Puggle_allowSendWho then 
 			DEFAULT_CHAT_FRAME.editBox:SetText("/who " .. "x-".. whofor) 

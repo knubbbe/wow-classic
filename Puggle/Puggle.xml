@@ -432,7 +432,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 						</Scripts>						
 					</CheckButton>
 
-					<CheckButton name="$parent_showOnlyRelevant"	parentkey="MyCheckButton" text="Only show level appropriate dungeons" 			inherits="UICheckButtonTemplate" >
+					<CheckButton name="$parent_showOnlyRelevant"	parentkey="MyCheckButton" text="Only show level appropriate dungeons (or Misc players)" 			inherits="UICheckButtonTemplate" >
 						<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset x="35" y="-152" /></Anchor></Anchors>
 						<Scripts>
 							<OnClick>

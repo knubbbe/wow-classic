@@ -108,4 +108,8 @@ RELEASE NOTES:
 	Fixed an issue where the sound and chat notifications were still occuring for unselected dungeons
 	The requests and who buttons will now still reset themselves correctly when the Minimap button is hidden
 	The LFG request tooltip now give the star rating of players if available
-	
+
+
+ - 2.5
+	Changing the 'track groups' setting while in a group should no longer cause a lua error
+	Fixed an issue where a lua eror would occur upon joining a roup
