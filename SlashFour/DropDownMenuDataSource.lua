@@ -184,7 +184,10 @@ end
 
 local function IsFilterActive(name)
     local filter = filterForName[name]
-    return activePredicates[filter.operator][filter.predicate] ~= nil
+    -- 2 users reported a crash caused by 'filter' being nil. Unsure what circumstance this occurs in. Maybe caused by rogue DropDownMenu code?
+    if filter then
+        return activePredicates[filter.operator][filter.predicate] ~= nil
+    end
 end
 local function SetFilterActive(name, active)
     local filter = filterForName[name]

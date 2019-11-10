@@ -75,7 +75,7 @@ function Events:CHAT_MSG_SYSTEM(...)
 end
 
 function Events:GROUP_ROSTER_UPDATE(...)
-	if GetNumSubgroupMembers() == 4 then
+	if GetNumSubgroupMembers(LE_PARTY_CATEGORY_HOME) == MAX_PARTY_MEMBERS and LFGFrameNotifyToggleFrameCheckButton:GetChecked() then
 		LFGFrameNotifyToggleFrameCheckButton:SetChecked(false)
 		SendSystemMessage("No longer showing messages for selected dungeons.")
 	end
