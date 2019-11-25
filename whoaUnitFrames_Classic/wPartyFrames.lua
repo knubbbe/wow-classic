@@ -1,0 +1,44 @@
+-- --	Party Frames.
+-- function whoaPartyFrames()
+	-- -- local useCompact = GetCVarBool("useCompactPartyFrames");
+	-- if (cfg.usePartyFrames) and (GetCVarBool("useCompactPartyFrames") == false) and IsInGroup(player) and (not IsInRaid(player)) then 
+		-- for i = 1, 4 do
+			-- -- if UnitExists(unit) then
+				-- _G["PartyMemberFrame"..i.."Name"]:SetSize(75,10);
+				-- _G["PartyMemberFrame"..i.."Texture"]:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\UI-PartyFrame");
+				-- _G["PartyMemberFrame"..i.."Flash"]:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\UI-PARTYFRAME-FLASH");
+				-- _G["PartyMemberFrame"..i.."HealthBar"]:ClearAllPoints();
+				-- _G["PartyMemberFrame"..i.."HealthBar"]:SetPoint("TOPLEFT", 45, -13);
+				-- _G["PartyMemberFrame"..i.."HealthBar"]:SetHeight(12);
+				-- _G["PartyMemberFrame"..i.."ManaBar"]:ClearAllPoints();
+				-- _G["PartyMemberFrame"..i.."ManaBar"]:SetPoint("TOPLEFT", 45, -26);
+				-- _G["PartyMemberFrame"..i.."ManaBar"]:SetHeight(5);
+				-- -- _G["PartyMemberFrame"..i.."HealthBarTextLeft"]:ClearAllPoints();
+				-- -- _G["PartyMemberFrame"..i.."HealthBarTextLeft"]:SetPoint("LEFT", _G["PartyMemberFrame"..i.."HealthBar"], "LEFT", 0, 0);
+				-- -- _G["PartyMemberFrame"..i.."HealthBarTextRight"]:ClearAllPoints();
+				-- -- _G["PartyMemberFrame"..i.."HealthBarTextRight"]:SetPoint("RIGHT", _G["PartyMemberFrame"..i.."HealthBar"], "RIGHT", 0, 0);
+				-- -- _G["PartyMemberFrame"..i.."ManaBarTextLeft"]:ClearAllPoints();
+				-- -- _G["PartyMemberFrame"..i.."ManaBarTextLeft"]:SetPoint("LEFT", _G["PartyMemberFrame"..i.."ManaBar"], "LEFT", 0, 0);
+				-- -- _G["PartyMemberFrame"..i.."ManaBarTextRight"]:ClearAllPoints();
+				-- -- _G["PartyMemberFrame"..i.."ManaBarTextRight"]:SetPoint("RIGHT", _G["PartyMemberFrame"..i.."ManaBar"], "RIGHT", 0, 0);
+				-- -- _G["PartyMemberFrame"..i.."HealthBarText"]:ClearAllPoints();
+				-- -- _G["PartyMemberFrame"..i.."HealthBarText"]:SetPoint("CENTER", _G["PartyMemberFrame"..i.."HealthBar"], "CENTER", 0, 0);
+				-- -- _G["PartyMemberFrame"..i.."ManaBarText"]:ClearAllPoints();
+				-- -- _G["PartyMemberFrame"..i.."ManaBarText"]:SetPoint("CENTER", _G["PartyMemberFrame"..i.."ManaBar"], "CENTER", 0, 0);
+			-- -- end
+		-- end
+	-- end
+-- end
+-- hooksecurefunc("UnitFrame_Update", whoaPartyFrames)
+-- hooksecurefunc("PartyMemberFrame_ToPlayerArt", whoaPartyFrames)
+
+-- -- function whoaPartyText()
+	-- -- if (cfg.usePartyFrames) then
+		-- -- for i = 1, 4 do
+				-- -- _G["PartyMemberFrame"..i.."ManaBarText"]:SetText(" ");
+				-- -- _G["PartyMemberFrame"..i.."ManaBarTextLeft"]:SetText(" ");
+				-- -- _G["PartyMemberFrame"..i.."ManaBarTextRight"]:SetText(" ");
+		-- -- end
+	-- -- end
+-- -- end
+-- -- hooksecurefunc("TextStatusBar_UpdateTextStringWithValues", whoaPartyText)
