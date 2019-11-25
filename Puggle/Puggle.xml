@@ -366,7 +366,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 							<Color a="1" r="1" g="1" b="1" />
                        </FontString>
 						<FontString inherits="GameFontNormal" text="Time before removing idle requests (s):">
-							<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset><AbsDimension x="390" y="-162"/></Offset></Anchor></Anchors>
+							<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset><AbsDimension x="390" y="-192"/></Offset></Anchor></Anchors>
 							<Color a="1" r="1" g="1" b="1" />
 						</FontString>				   
 					   
@@ -402,6 +402,16 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 							</OnClick>
 						</Scripts>						
 					</CheckButton>
+
+					<CheckButton name="$parent_disableInInstance"	parentkey="MyCheckButton" text="Automacitally disable Puggle in instances" 			inherits="UICheckButtonTemplate" >
+						<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset x="385" y="-152" /></Anchor></Anchors>
+						<Scripts>
+							<OnClick>
+								Puggle_disableInInstance = self:GetChecked();
+							</OnClick>
+						</Scripts>						
+					</CheckButton>
+			
 			
 					<CheckButton name="$parent_showMessageOnNewRequest"	parentkey="MyCheckButton" text="Show a chat notification on new LFG request" 			inherits="UICheckButtonTemplate" >
 						<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset x="35" y="-62" /></Anchor></Anchors>
@@ -454,7 +464,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 					
 					<EditBox name="$parent_idleTimeout" letters="4" autoFocus="false" multiLine="false" numeric="true">
 						<Size x="40" y="48" />
-						<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset x="635" y="-145" /></Anchor></Anchors>
+						<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset x="635" y="-175" /></Anchor></Anchors>
 						<Layers>
 							<Layer level="BACKGROUND">
 								<Texture file="Interface\ChatFrame\UI-ChatInputBorder-Left">
@@ -545,10 +555,10 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 							<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset><AbsDimension x="20" y="-120"/></Offset></Anchor></Anchors>
 						</FontString>				   
 						
-
 						<FontString inherits="GameFontNormal" text="Titles of the dungeons and their respective tags:">
-							<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset><AbsDimension x="20" y="-200"/></Offset></Anchor></Anchors>
+							<Anchors><Anchor point="TOPLEFT" relativeTo="$parent"><Offset><AbsDimension x="20" y="-230"/></Offset></Anchor></Anchors>
 						</FontString>				   
+
 					   
                    </Layer>
 				</Layers>
@@ -556,7 +566,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 				<Frames>
 					<Button name="$parent_toggleAll" inherits="OptionsButtonTemplate" text="Toggle all dungeons">
 						<Size><AbsDimension x="150" y="25" /></Size>
-						<Anchors><Anchor point="TOPRIGHT" relativeTo="$parent"><Offset x="-35" y="-194" /></Anchor></Anchors>
+						<Anchors><Anchor point="TOPRIGHT" relativeTo="$parent"><Offset x="-35" y="-224" /></Anchor></Anchors>
 						<Scripts>
 							<OnClick> 
 								Puggle_ToggleAllDungeons(false)
@@ -573,7 +583,7 @@ C:\Projects\WoW\Bin\Interface\FrameXML\UI.xsd">
 						<Size><AbsDimension x="676" y="265"/></Size>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeTo="$parent" relativePoint="TOPRIGHT">
-								<Offset><AbsDimension x="-33" y="-230"/></Offset>
+								<Offset><AbsDimension x="-33" y="-260"/></Offset>
 							</Anchor>
 						</Anchors>
 

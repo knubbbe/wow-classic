@@ -109,7 +109,11 @@ RELEASE NOTES:
 	The requests and who buttons will now still reset themselves correctly when the Minimap button is hidden
 	The LFG request tooltip now give the star rating of players if available
 
-
  - 2.5
 	Changing the 'track groups' setting while in a group should no longer cause a lua error
-	Fixed an issue where a lua eror would occur upon joining a roup
+	Fixed an issue where a lua eror would occur upon joining a group
+
+ - 2.6
+	Automatic disable when in an instance
+	Tracking of requests coming through guild chat
+	A Blacklist is now available to disregard requests containin specific keywords.

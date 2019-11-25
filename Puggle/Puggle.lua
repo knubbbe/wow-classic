@@ -7,7 +7,7 @@
 ]]--
 
 
-local puglocal_version = "2.4"  --change here, and in TOC
+local puglocal_version = "2.6"  --change here, and in TOC
 local puglocal_reqPrefix = "Puggle;"
 local puglocal_dispFrequency = 5  -- display refresh every x seconds
 local puglocal_whoFrequency = 10  -- seconds before allowing another /who
@@ -156,7 +156,7 @@ puglocal_dungeons["UD2"] = 	{ 40, 	1, 	60, 	1	 }
 puglocal_dungeons["UD3"] = 	{ 41, 	1, 	60, 	1	 }
 
 local puglocal_searchTags = { "lfg", "lfm", "lf1m", "lf2m", "lf3m", "lftank", "lfheals", "lfhealer", "lfdps" }
-
+local puglocal_blacklistTags = { "" }
 
 local puglocal_playerLevel = 1;
 
@@ -180,6 +180,8 @@ local puglocal_ldb = LibStub("LibDataBroker-1.1")
 local Puggle_broker = nil
 
 local Puggle_ratedList = {}
+
+local hideNotifications = false  --used to 'disable' addon while in instances
 -------------------------------------------------------------------------
 
 function Puggle_OnLoad()
@@ -187,6 +189,7 @@ function Puggle_OnLoad()
 	Puggle_ContainerFrame:RegisterEvent("ADDON_LOADED");				--Initialisation
 	Puggle_ContainerFrame:RegisterEvent("CHAT_MSG_CHANNEL");			--Get Puggle requests
 	Puggle_ContainerFrame:RegisterEvent("CHAT_MSG_SYSTEM");				--To retrieve /who results		
+	Puggle_ContainerFrame:RegisterEvent("CHAT_MSG_GUILD");				--To retrieve requests coming from the guild chat		
 	Puggle_ContainerFrame:RegisterEvent("CHAT_MSG_PARTY");				--To retrieve guild/level through out the grouping		
 	Puggle_ContainerFrame:RegisterEvent("CHAT_MSG_PARTY_LEADER");		--To retrieve guild/level through out the grouping		
 	Puggle_ContainerFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA");		--Whenever someone joins/leaves group
@@ -241,11 +244,13 @@ function Puggle_OnEvent(event, ...)
 		if (Puggle_sortLatestFirst== nil) then Puggle_sortLatestFirst = false; end
 		if (Puggle_allowSendWho== nil) then Puggle_allowSendWho = true; end
 		if (Puggle_trackGroups== nil) then Puggle_trackGroups = true; end
+		if (Puggle_disableInInstance== nil) then Puggle_disableInInstance = true; end
 				
 		--check new install (all variables empty)
 		if (Puggle_dungeonTags == nil) then Puggle_dungeonTags = puglocal_dungeonTags;	end
 		if (Puggle_dungeonNames == nil) then Puggle_dungeonNames = puglocal_dungeonNames;	end
 		if (Puggle_searchTags == nil) then Puggle_searchTags = puglocal_searchTags;	end
+		if (Puggle_blacklistTags == nil) then Puggle_blacklistTags = puglocal_blacklistTags;	end
 		if (Puggle_dungeonShow == nil) then 
 			Puggle_dungeonShow = {} 
 			for is, s in pairs(Puggle_dungeonNames) do Puggle_dungeonShow[is] = true;	end 
@@ -272,7 +277,8 @@ function Puggle_OnEvent(event, ...)
 		_G["myTabPage4_showOnlyRelevantText"]:SetText(myTabPage4_showOnlyRelevant:GetText())
 		_G["myTabPage4_allowSendWhoText"]:SetText(myTabPage4_allowSendWho:GetText())
 		_G["myTabPage4_trackGroupsText"]:SetText(myTabPage4_trackGroups:GetText())
-		
+		_G["myTabPage4_disableInInstanceText"]:SetText(myTabPage4_disableInInstance:GetText())
+
 		myTabPage4_showMinimapButton:SetChecked(Puggle_showMinimapButton)
 		myTabPage4_showMessageOnNewRequest:SetChecked(Puggle_showMessageOnNewRequest)
 		myTabPage4_playSoundOnNewRequest:SetChecked(Puggle_playSoundOnNewRequest)
@@ -282,7 +288,8 @@ function Puggle_OnEvent(event, ...)
 		myTabPage4_idleTimeout:SetText(Puggle_idleTimeout)
 		myTabPage4_allowSendWho:SetChecked(Puggle_allowSendWho)
 		myTabPage4_trackGroups:SetChecked(Puggle_trackGroups)
-		
+		myTabPage4_disableInInstance:SetChecked(Puggle_disableInInstance)
+
 		myTabPage4_note:SetText("I hope this will help you get a group, while still keep the social element that was\nunfortunately lost with the LFG feature introduced in the later expansions.\n\nQuestions, suggestions, praise or rant can be sent to \124cffffd100\124hCixi@WarcraftRatings.com\124h\124r\nJust remember I did this addon as a fun little project, and am forcing nobody to use it :-)\n\nNo animal was harmed during the development of this addon.\nWell, apart from that kitten I punched while trying to get the scrollframe to work.\n\nSpecial thanks to \124cffffd100\124hKagerX\124h\124r, \124cffffd100\124hRiot\124r, \124cffffd100\124hItzachu\124h\124r, \124cffffd100\124hMauridius\124h\124r and \124cffffd100\124hThawe\124h\124r for their help and ideas.")
 	
 		puglocal_playerLevel = UnitLevel("player")
@@ -360,10 +367,11 @@ function Puggle_OnEvent(event, ...)
 
 	end
 
-	if event == "CHAT_MSG_CHANNEL" then
-			Puggle_ProcessRandom(arg1, arg2)
-
+	
+	if event == "CHAT_MSG_CHANNEL" or event == "CHAT_MSG_GUILD" then
+		Puggle_ProcessRandom(arg1, arg2)
 	end
+
 
 	if event == "CHAT_MSG_PARTY" or event == "CHAT_MSG_PARTY_LEADER" then
 		-- checking guild and level of party members when there's chat going on
@@ -411,11 +419,31 @@ function Puggle_OnEvent(event, ...)
 	
 	
 	if event == "ZONE_CHANGED_NEW_AREA" then
+		--check if in instance
+		inInstance, instanceType = IsInInstance()
+		if instanceType ~= "none" then 
+			if Puggle_disableInInstance then 
+				hideNotifications = true
+			end
+		else 
+			hideNotifications = false
+		end
+
 		Puggle_UpdateCurrentGroup()
 	end
 	
 
 	if event == "PLAYER_ENTERING_WORLD" then
+		--check if in instance
+		inInstance, instanceType = IsInInstance()
+		if instanceType ~= "none" then 
+			if Puggle_disableInInstance then 
+				hideNotifications = true
+			end
+		else 
+			hideNotifications = false
+		end
+
 	end
 	
 end
@@ -545,7 +573,6 @@ function Puggle_UpdateCurrentGroup()
 					if puglocal_lastGroupId == puglocal_curGroupId then
 						Lib_UIDropDownMenu_SetText(_G["Puggle_DropDownGroups"], Puggle_dec(Puggle_pastPlayers[puglocal_playerToon].name) .. " - " .. date("%A %B %d, %Y at %H:%M", puglocal_lastGroupId) .. " - " .. Puggle_dec(Puggle_pastGroups[puglocal_curGroupId].loc) )
 					end
-
 				end
 		
 				Puggle_pastGroups[puglocal_curGroupId].dur = time() - puglocal_curGroupId
@@ -1380,14 +1407,12 @@ end
 function Puggle_ShowEditTags()
 
 	CreateFrame("Frame", "puggletags_LFG", myTabPage5, "Puggle_EditTagsTemplate")
-
 	_G["puggletags_LFG_instCode"]:SetText("LFG")
 	_G["puggletags_LFG_instName"]:Hide()
 	_G["puggletags_LFG_instName2"]:SetText("Looking for group")
 	_G["puggletags_LFG_instName2"]:Show()
 	_G["puggletags_LFG_pick"]:Hide()
 	
-
 	local allTags = "";
 	for idt, dt in pairs(Puggle_searchTags) do
 		allTags = allTags .. dt .. " "
@@ -1396,6 +1421,25 @@ function Puggle_ShowEditTags()
 	
 	_G["puggletags_LFG"]:SetPoint("TOPLEFT", myTabPage5, "TOPLEFT", 30, -150);			
 	_G["puggletags_LFG"]:Show()
+
+
+	CreateFrame("Frame", "puggletags_BL", myTabPage5, "Puggle_EditTagsTemplate")
+	_G["puggletags_BL_instCode"]:SetText("BL")
+	_G["puggletags_BL_instName"]:Hide()
+	_G["puggletags_BL_instName2"]:SetText("Black list")
+	_G["puggletags_BL_instName2"]:Show()
+	_G["puggletags_BL_pick"]:Hide()
+	
+	local blTags = "";
+	for idt, dt in pairs(Puggle_blacklistTags) do
+		blTags = blTags .. dt .. " "
+	end
+	_G["puggletags_BL_instTags"]:SetText(blTags)
+	
+	_G["puggletags_BL"]:SetPoint("TOPLEFT", myTabPage5, "TOPLEFT", 30, -190);			
+	_G["puggletags_BL"]:Show()
+
+
 
 
 	local Puggle_yy = -10	
@@ -1510,11 +1554,14 @@ function Puggle_ValidateInstTags(self)
 
 	local code = Puggle_split(self:GetName() , "_")[2]
 	local search = false;
+	local blacklist = false;
 	if code == "LFG" then search = true end
+	if code == "BL" then blacklist = true end
 	
 	if (self:GetText() == nil) then 
 		if search then Puggle_searchTags = puglocal_searchTags
-		else Puggle_dungeonTags[code] = puglocal_dungeonTags[code] end
+		else if blacklist then Puggle_blacklistTags = puglocal_blacklistTags			
+		else Puggle_dungeonTags[code] = puglocal_dungeonTags[code] end end
 	else 
 		if (self:GetText() == "") then 
 			if search then 
@@ -1525,16 +1572,26 @@ function Puggle_ValidateInstTags(self)
 				_G["puggletags_LFG_instTags"]:SetText(allTags)
 				print("Puggle: Resetting search tags to their defaults")	
 			else 
-				Puggle_dungeonTags[code] = puglocal_dungeonTags[code] 
-				local allTags = "";
-				for idt, dt in pairs(Puggle_dungeonTags[code]) do allTags = allTags .. dt .. " "	end
+				if blacklist then 
+					Puggle_blacklistTags = puglocal_blacklistTags
+					local allTags = "";
+					for idt, dt in pairs(Puggle_blacklistTags) do allTags = allTags .. dt .. " "	end
+	
+					_G["puggletags_BL_instTags"]:SetText(allTags)
+					print("Puggle: Resetting blacklist tags to their defaults")	
+				else
+					Puggle_dungeonTags[code] = puglocal_dungeonTags[code] 
+					local allTags = "";
+					for idt, dt in pairs(Puggle_dungeonTags[code]) do allTags = allTags .. dt .. " "	end
 
-				_G["puggletags_"..code.."_instTags"]:SetText(allTags)
-				print("Puggle: Resetting tags for "..code.. " to their defaults")
+					_G["puggletags_"..code.."_instTags"]:SetText(allTags)
+					print("Puggle: Resetting tags for "..code.. " to their defaults")
+				end 
 			end
 		else
 			if search then Puggle_searchTags = Puggle_split(self:GetText(), " ")
-			else Puggle_dungeonTags[code] = Puggle_split(self:GetText(), " ") end
+			else if blacklist then Puggle_blacklistTags = Puggle_split(self:GetText(), " ")
+			else Puggle_dungeonTags[code] = Puggle_split(self:GetText(), " ") end end
 		end
 	end
 
@@ -1624,8 +1681,8 @@ function Puggle_ProcessRandom(req, sender)
 
 				if Puggle_dungeonShow[s] then 
 					if (puglocal_playerLevel >= puglocal_dungeons[s][2] and puglocal_playerLevel <= puglocal_dungeons[s][3]) or Puggle_showOnlyRelevant == false then 
-						if Puggle_showMessageOnNewRequest then DEFAULT_CHAT_FRAME:AddMessage("New Puggle request by " .. playername .. " for " .. Puggle_dungeonNames[s]) end 
-						if Puggle_playSoundOnNewRequest then   PlaySoundFile("sound/interface/pickup/putdownring.ogg") end
+						if Puggle_showMessageOnNewRequest and not hideNotifications then DEFAULT_CHAT_FRAME:AddMessage("New Puggle request by " .. playername .. " for " .. Puggle_dungeonNames[s]) end 
+						if Puggle_playSoundOnNewRequest and not hideNotifications then   PlaySoundFile("sound/interface/pickup/putdownring.ogg") end
 					end
 				end
 			
@@ -1638,8 +1695,8 @@ function Puggle_ProcessRandom(req, sender)
 
 					if Puggle_dungeonShow[s] then 
 						if (puglocal_playerLevel >= puglocal_dungeons[s][2] and puglocal_playerLevel <= puglocal_dungeons[s][3]) or Puggle_showOnlyRelevant == false then 
-							if Puggle_showMessageOnNewRequest then DEFAULT_CHAT_FRAME:AddMessage("New Puggle request by " .. playername .. " for " .. Puggle_dungeonNames[s]) end 
-							if Puggle_playSoundOnNewRequest then   PlaySoundFile("sound/interface/pickup/putdownring.ogg") end				
+							if Puggle_showMessageOnNewRequest and not hideNotifications then DEFAULT_CHAT_FRAME:AddMessage("New Puggle request by " .. playername .. " for " .. Puggle_dungeonNames[s]) end 
+							if Puggle_playSoundOnNewRequest and not hideNotifications then   PlaySoundFile("sound/interface/pickup/putdownring.ogg") end				
 						end
 					end
 				else 
@@ -1700,40 +1757,53 @@ function Puggle_ExtractDungeon(req)
 	local parts = Puggle_split(req, "+")
 	
 	local valid = false;
-	-- Two pass request parsing. lfg tags,  then dungeon
+	local blacklisted = false;
+	-- Three pass request parsing. check blacklist tags, then lfg tags,  then dungeon tags
 		
-	-- First check that this is an actual request for group
-	for il, l in pairs(Puggle_searchTags) do --check all LFG tags
+	-- First check if it contains any black listed tags
+	for il, l in pairs(Puggle_blacklistTags) do --check all BL tags
 		for ip, p in pairs(parts) do
 			if (p == l) then 
-				valid = true
+				blacklisted = true -- contains blacklist tag
 				break
 			end
 		end
 	end
 	
-	
-	if valid then 
-		-- Then identify what instance it is for, or throw in a Misc/Other bucket	 if can't understand it (99)
-		for id, d in pairs(puglocal_dungeons) do --check all dungeons
-		--	for is, s in pairs(d[7]) do --check all acronyms
-			for is, s in pairs(Puggle_dungeonTags[id]) do --check all acronyms
-				for ip, p in pairs(parts) do
-					if (p == s) then 
-						local found = false
-						--check the dungeon isn't already in the selection (prevent dupes like "lfg wailing caverns") 
-						for iss, ss in pairs(sel) do --check selection
-							if ss == id then found = true end
-						end
-						if not found then table.insert(sel, id) end
-					end
+
+	if not blacklisted then 
+		-- Then check that this is an actual request for group
+		for il, l in pairs(Puggle_searchTags) do --check all LFG tags
+			for ip, p in pairs(parts) do
+				if (p == l) then 
+					valid = true
+					break
 				end
-			end	
+			end
 		end
-		if next(sel) == nil then table.insert(sel, "MISC") end 
 		
+		if valid then 
+			-- Then identify what instance it is for, or throw in a Misc/Other bucket	 if can't understand it (99)
+			for id, d in pairs(puglocal_dungeons) do --check all dungeons
+			--	for is, s in pairs(d[7]) do --check all acronyms
+				for is, s in pairs(Puggle_dungeonTags[id]) do --check all acronyms
+					for ip, p in pairs(parts) do
+						if (p == s) then 
+							local found = false
+							--check the dungeon isn't already in the selection (prevent dupes like "lfg wailing caverns") 
+							for iss, ss in pairs(sel) do --check selection
+								if ss == id then found = true end
+							end
+							if not found then table.insert(sel, id) end
+						end
+					end
+				end	
+			end
+			if next(sel) == nil then table.insert(sel, "MISC") end 
+			
+		end
 	end
-	
+
 	return sel
 end 
 
