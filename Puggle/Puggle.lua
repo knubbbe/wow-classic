@@ -7,7 +7,7 @@
 ]]--
 
 
-local puglocal_version = "2.6"  --change here, and in TOC
+local puglocal_version = "2.8"  --change here, and in TOC
 local puglocal_reqPrefix = "Puggle;"
 local puglocal_dispFrequency = 5  -- display refresh every x seconds
 local puglocal_whoFrequency = 10  -- seconds before allowing another /who
@@ -1640,7 +1640,7 @@ function Puggle_ProcessRandom(req, sender)
 	
 	req = string.gsub(req, ";", "%.");		--remove semicolons as they break the string
 	local sel = Puggle_ExtractDungeon(string.lower(req))
-	
+
 	--if request is valid, proceed
 	if next(sel) ~= nil then
 	
@@ -1744,17 +1744,24 @@ end
 -------------------------------------------------------------------------
 
 function Puggle_ExtractDungeon(req) 
-
+	
 	local sel = {}
 	
-	req = string.gsub(req, " ", "+");
-	req = string.gsub(req, "%.", "+");
-	req = string.gsub(req, ",", "+");
-	req = string.gsub(req, "%/", "+");
-	req = string.gsub(req, "'", "+");
-	req = string.gsub(req, "?", "+");
-	req = string.gsub(req, "!", "+");
-	local parts = Puggle_split(req, "+")
+	req = string.gsub(req, " ", "_");
+	req = string.gsub(req, "%.", "_");
+	req = string.gsub(req, ",", "_");
+	req = string.gsub(req, "%/", "_");
+	req = string.gsub(req, "'", "_");
+	req = string.gsub(req, "?", "_");
+	req = string.gsub(req, "!", "_");
+
+	--remove double spaces(_) as ti was preventing some requests in 2.6
+	--for example "lfg    rfc" was failing
+    while string.find(req, "__") do
+		req = string.gsub(req, "__", "_");
+    end
+
+	local parts = Puggle_split(req, "_")
 	
 	local valid = false;
 	local blacklisted = false;

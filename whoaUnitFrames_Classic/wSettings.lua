@@ -1,11 +1,6 @@
 whoa = {}
 cfg = {}
 
-local whoaThFaddon = IsAddOnLoaded("whoaThickFrames_Classic");
-local rmhAddon = IsAddOnLoaded("RealMobHealth");
-local mi2addon = IsAddOnLoaded("MobInfo2-Classic");
-local lortiUIaddon = IsAddOnLoaded("Lorti-UI-Classic");
-
 function whoaSetDefaults()
 	if (cfg.smallAuraSize == nil)	then cfg.smallAuraSize = 20;	end
 	if (cfg.largeAuraSize == nil)	then cfg.largeAuraSize = 25;	end
@@ -33,7 +28,7 @@ function whoa:CreateFont(frame, name, text, x, y, font, size )
 end
 
 --	Checkbutton factory.
-local uniquealyzer = 1;
+local uniquealyzer = 0;
 function createCheckbutton(parent, x_loc, y_loc, displayname)
 	uniquealyzer = uniquealyzer + 1;
 	local checkbutton = CreateFrame("CheckButton", "whoaCheckButton" .. uniquealyzer, parent, "ChatConfigCheckButtonTemplate");
@@ -42,14 +37,6 @@ function createCheckbutton(parent, x_loc, y_loc, displayname)
 	return checkbutton;
 end
 
--- CreateButton --
-function whoa:CreateButton(frame, name, text, width, height, x, y, template)
-	if (template == nil) then template = "OptionsButtonTemplate"
-	end
-	local button = CreateFrame("Button", name, frame, template) button:SetPoint("TOPLEFT", x, y) button:SetWidth(width)
-	button:SetHeight(height) button:SetText(text)
-	return (button)
-end
 
 --	UI panel.
 whoaUI = {}
@@ -57,34 +44,48 @@ whoaUI.panel = CreateFrame( "Frame", "whoaUI", UIParent );
 whoaUI.panel.name = "whoa UnitFrames";
 InterfaceOptions_AddCategory(whoaUI.panel);
 
-local title = whoa:CreateFont(whoaUI.panel, "title", "whoa UnitFrames v1.3.2", 15, -18, font, 15)
+local title = whoa:CreateFont(whoaUI.panel, "title", "whoa UnitFrames v1.3.3", 15, -18, font, 15)
 title:SetFontObject(GameFontNormal) 
 title:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
 
-local disclaimer = whoa:CreateFont(whoaUI.panel, "disclaimer", "Most options require a /reload in order to correctly apply the changes.", 25, -40, font, 12)
+local disclaimer = whoa:CreateFont(whoaUI.panel, "disclaimer", "Most options require a /reload in order to correctly apply the changes.", 25, -40, font, 10)
 disclaimer:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
 	
+
 --	UI panel
 function whoa:CreateUI(frame)
 	local xOffset = -80;
 	
 	local mainOptions = whoa:CreateFont(whoaUI.panel, "mainOptions", "Main frames options.", 25, xOffset, font, 13)
 	mainOptions:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
-	
+
 	--	Players class colored HP.
 	myCheckButton = createCheckbutton(whoaUI.panel, 40, xOffset-30, " Players class colors.");
 	myCheckButton.tooltip = "Displays class colored HP bars for player frame and targeted players frames.";
 	myCheckButton:SetScript("OnClick",
-	function(self)
+	function()
 		-- if whoaCheckButton2:GetChecked() then
 		if (cfg.classColor == false) then
 			cfg.classColor = true;
-			PlayerFrame:Hide();
-			PlayerFrame:Show();
 		else
 			cfg.classColor = false;
-			PlayerFrame:Hide();
-			PlayerFrame:Show();
+			cfg.blueShamans = false;
+			whoaCheckButton2:SetChecked(false)
+		end
+	end );
+	
+		--	Blue shamans
+	myCheckButton = createCheckbutton(whoaUI.panel, 280, xOffset-30, " Blue shamans.");
+	myCheckButton.tooltip = "Sets blue instead of pink for shaman class color.";
+	myCheckButton:SetScript("OnClick",
+	function()
+		-- if whoaCheckButton2:GetChecked() then
+		if (cfg.blueShamans == false) then
+			cfg.blueShamans = true;
+			cfg.classColor = true;
+			whoaCheckButton1:SetChecked(true)
+		else
+			cfg.blueShamans = false;
 		end
 	end );
 
@@ -130,7 +131,6 @@ function whoa:CreateUI(frame)
 	
 	local styleOptions = whoa:CreateFont(whoaUI.panel, "styleOptions", "Styling options.", 25, xOffset-140, font, 13)
 	styleOptions:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
-
 
 	--	Dark Frames
 	myCheckButton = createCheckbutton(whoaUI.panel, 40, xOffset-170, " Enable dark frames.");
@@ -186,50 +186,48 @@ function whoa:CreateUI(frame)
 			cfg.noClickFrame = false;
 		end
 	end );
-	
-	-- --	whoa Party frames.
-	-- myCheckButton = createCheckbutton(whoaUI.panel, 40, xOffset-120, "whoa´s party frame style.");
-	-- -- myCheckButton:SetEnabled(false);
-	-- myCheckButton.tooltip = "Use whoa´s party frames style when not using Compact Raid Frames. Works for whoa´s and Blizzard´s default frames.";
-	-- myCheckButton:SetScript("OnClick",
-	-- function(self)
-		-- -- if whoaCheckButton5:GetChecked() then
-		-- if (cfg.usePartyFrames == false) then
-			-- cfg.usePartyFrames = true;
-		-- else
-			-- cfg.usePartyFrames = false;
-		-- end
-	-- end );
-	
-	-- local fancyOptions = whoa:CreateFont(whoaUI.panel, "fancyOptions", "Other fancy options.", 15, xOffset-160, font, 12)
-	-- fancyOptions:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
-	
 
 	
-
-		
-	-- --	Old threat numeric indicator.
-	-- myCheckButton = createCheckbutton(whoaUI.panel, 40, xOffset-250, "Classic pink color for Shamans.");
-	-- -- myCheckButton:SetEnabled(false);
-	-- myCheckButton.tooltip = "Sets Shamans class color to pink.";
-	-- myCheckButton:SetScript("OnClick",
-	-- function(self)
-		-- if (cfg.blueShaman == false) then
-			-- cfg.blueShaman = true;
-		-- else
-			-- cfg.blueShaman = false;
-		-- end
-	-- end );
+	--	Positioning
+	-- local positionOptions = whoa:CreateFont(whoaUI.panel, "mainOptions", "Positioning options.", 25, xOffset-350, font, 13)
+	-- mainOptions:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
 	
-
+	local centerBttnInfo = whoa:CreateFont(whoaUI.panel, "centerBttnInfo", "Center player and target frames middle screen.", 50, -500, font, 12)
+	mainOptions:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
+	
+	local centerBttn = CreateFrame("Button", "centerButton", whoaUI.panel, "UIPanelButtonTemplate")
+	centerBttn:SetSize(110 ,25)
+	centerBttn:SetText("Center frames")
+	centerBttn:SetPoint("BOTTOMLEFT",70,20)
+	centerBttn:SetScript("OnClick", function()
+		local x,y = -20,-150 for i,f in pairs({PlayerFrame,TargetFrame}) do f:ClearAllPoints() f:SetPoint(i==1 and "RIGHT" or "LEFT",UIParent,"CENTER",i==1 and x or -x,y) f:SetUserPlaced(true) end
+	end)
+	
+	local resetBttn = CreateFrame("Button", "resetButton", whoaUI.panel, "UIPanelButtonTemplate")
+	resetBttn:SetSize(100 ,25)
+	resetBttn:SetText("Reset frames")
+	resetBttn:SetPoint("BOTTOMLEFT",210,20)
+	resetBttn:SetScript("OnClick", function()
+		PlayerFrame_ResetUserPlacedPosition()
+		TargetFrame_ResetUserPlacedPosition()
+	end)
+	
+	local reloadBttn = CreateFrame("Button", "reloadButton", whoaUI.panel, "UIPanelButtonTemplate")
+		reloadBttn:SetSize(80 ,22)
+		reloadBttn:SetText("Reload UI")
+		reloadBttn:SetPoint("BOTTOMRIGHT",-20,20)
+		reloadBttn:SetScript("OnClick", function()
+		ReloadUI()
+	end)
 end
 
 SlashCmdList.whoaUI = function()
 	InterfaceOptionsFrame_OpenToCategory(whoaUI.panel)
 	InterfaceOptionsFrame_OpenToCategory(whoaUI.panel)
 end
-SLASH_whoaUI1 = "/whoaUI"
+SLASH_whoaUI1 = "/whoa"
 SLASH_whoaUI1 = "/wuf"
+SLASH_whoaUI2 = "/whoa"
 SlashCmdList['RELOAD'] = function() ReloadUI() end
 LASH_RELOAD1 = '/rl'
 
@@ -237,6 +235,9 @@ whoa:CreateUI()
 --	Events
 function whoa:Init(event, addon, ...)
 	if (cfg.classColor == true) then
+		whoaCheckButton1:SetChecked(true)
+	end
+	if ( cfg.blueShamans == true ) then
 		whoaCheckButton2:SetChecked(true)
 	end
 	if ( cfg.reactionColor == true ) then
@@ -260,20 +261,12 @@ function whoa:Init(event, addon, ...)
 	if ( cfg.noClickFrame == true) then
 		whoaCheckButton9:SetChecked(true)
 	end
-	-- if ( cfg.usePartyFrames == true) then
-		-- whoaCheckButton7:SetChecked(true)
-	-- end	
-	-- if ( cfg.blueShaman == false) then
-		-- whoaCheckButton10:SetChecked(true)
-	-- end
-	-- if ( cfg.useBossFrames == true) then
-		-- whoaCheckButton9:SetChecked(false)
-	-- end
+	
 	if (event == "ADDON_LOADED" and addon == "whoaUnitFrames_Classic") then
 		if rmhAddon then
 			print("|cff00ccff[whoa UnitFrames]:|cff00ff00 RealMobHealth detected.");
 		end
-		if mi2addon then
+		if mi2addonaddon then
 			print("|cff00ccff[whoa UnitFrames:|cff00ff00 MobInfo2 detected.");
 		end
 		if whoaThFaddon then
@@ -287,16 +280,13 @@ function whoa:Init(event, addon, ...)
 	
 	if (cfg.noClickFrame == true) then
 		if (event == "PLAYER_ENTERING_WORLD") then
-			PlayerFrame:SetMouseClickEnabled(false);
-			PetFrame:SetMouseClickEnabled(false);
-			TargetFrame:SetMouseClickEnabled(false)
-		elseif (event == "PLAYER_TARGET_CHANGED") then
-			-- TargetFrame:SetMouseClickEnabled(false);
-			if UnitExists("target") then
-				TargetFrameToTFrame:SetMouseClickEnabled(false);
-			end
+			print("entered world");
 		end
+		PlayerFrame:SetMouseClickEnabled(false);
+		PetFrame:SetMouseClickEnabled(false);
+		TargetFrame:SetMouseClickEnabled(false)
 	end
+	blueShamans();
 end
 -- create addon frame
 local whoaUI = CreateFrame("Frame", "whoaUI", UIParent)

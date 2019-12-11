@@ -116,4 +116,7 @@ RELEASE NOTES:
  - 2.6
 	Automatic disable when in an instance
 	Tracking of requests coming through guild chat
-	A Blacklist is now available to disregard requests containin specific keywords.
+	A Blacklist is now available to disregard requests containing specific keywords.
+
+ - 2.7
+	Fixed an issue where some LFG requests were not being picked up.

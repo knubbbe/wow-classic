@@ -1,8 +1,15 @@
 --	Player frame.
 local function wPlayerFrame(self)
+	local isDead = UnitIsDead("player");
 	if (cfg.whoaTexture == true) then
 		self.healthbar:SetStatusBarTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\statusbar\\whoa");
 	end
+	if isDead then 
+		self.healthbar.RightText:SetText("");
+		self.healthbar.LeftText:SetText("");
+	end
+	PlayerStatusTexture:ClearAllPoints();
+	PlayerStatusTexture:SetPoint("CENTER", PlayerFrame, "CENTER",16, 8);
 	PlayerFrameBackground:SetWidth(120);
 	self.name:Hide();
 	self.name:ClearAllPoints();
@@ -29,7 +36,7 @@ local function wPlayerFrame(self)
 end
 hooksecurefunc("PlayerFrame_ToPlayerArt", wPlayerFrame)
 
-local function darkFramesSelector(self)
+local function playerFrameSelector(self)
 	if (cfg.whoaTexture == true) then
 		self.healthbar:SetStatusBarTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\statusbar\\whoa");
 	end
@@ -39,9 +46,9 @@ local function darkFramesSelector(self)
 		PlayerFrameTexture:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\light\\UI-TargetingFrame");
 	end
 end
-hooksecurefunc("PlayerFrame_ToPlayerArt", darkFramesSelector)
+hooksecurefunc("PlayerFrame_ToPlayerArt", playerFrameSelector)
 
-local function whoaPlayerFontStyle(self)
+local function playerFontStyle(self)
 	if (cfg.styleFont) then
 		self.healthbar.LeftText:SetFontObject(SystemFont_Outline_Small);
 		self.healthbar.RightText:SetFontObject(SystemFont_Outline_Small);
@@ -51,10 +58,10 @@ local function whoaPlayerFontStyle(self)
 		self.manabar.TextString:SetFontObject(SystemFont_Outline_Small);
 	end
 end
-hooksecurefunc("PlayerFrame_ToPlayerArt", whoaPlayerFontStyle)
+hooksecurefunc("PlayerFrame_ToPlayerArt", playerFontStyle)
 
 --	Player vehicle frame.
-local function whoaVehicleFrame(self, vehicleType)
+local function vehicleFrame(self, vehicleType)
 		if ( vehicleType == "Natural" ) then
 		PlayerFrameVehicleTexture:SetTexture("Interface\\Vehicles\\UI-Vehicle-Frame-Organic");
 		PlayerFrameFlash:SetTexture("Interface\\Vehicles\\UI-Vehicle-Frame-Organic-Flash");
@@ -75,25 +82,29 @@ local function whoaVehicleFrame(self, vehicleType)
 	PlayerName:SetPoint("CENTER",50,23);
 	PlayerFrameBackground:SetWidth(114);
 end
-hooksecurefunc("PlayerFrame_ToVehicleArt", whoaVehicleFrame)
-	-- PetFrameTexture:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\dark\\UI-SmallTargetingFrame");
+hooksecurefunc("PlayerFrame_ToVehicleArt", vehicleFrame)
 
 -- Pet frame
-local function whoaPetFrame()
+local function petFrame()
+	PetFrameHealthBarTextRight:SetPoint("RIGHT",PetFrameHealthBar,"RIGHT",2,0);
+	PetFrameManaBarTextRight:SetPoint("RIGHT",PetFrameManaBar,"RIGHT",2,-5);
 	if (cfg.styleFont) then
 		PetFrameHealthBarTextLeft:SetPoint("LEFT",PetFrameHealthBar,"LEFT",0,0);
-		PetFrameHealthBarTextRight:SetPoint("RIGHT",PetFrameHealthBar,"RIGHT",0,0);
-		PetFrameManaBarTextLeft:SetPoint("LEFT",PetFrameManaBar,"LEFT",0,-2);
-		PetFrameManaBarTextRight:SetPoint("RIGHT",PetFrameManaBar,"RIGHT",0,-2);
+		PetFrameHealthBarTextRight:SetPoint("RIGHT",PetFrameHealthBar,"RIGHT",2,0);
+		PetFrameManaBarText:SetPoint("CENTER",PetFrameManaBar,"CENTER",0,-3);
+		PetFrameManaBarTextLeft:SetPoint("LEFT",PetFrameManaBar,"LEFT",0,-3);
+		PetFrameManaBarTextRight:SetPoint("RIGHT",PetFrameManaBar,"RIGHT",2,-3);
+		PetFrameHealthBarText:SetFontObject(SystemFont_Outline_Small);
 		PetFrameHealthBarTextLeft:SetFontObject(SystemFont_Outline_Small);
 		PetFrameHealthBarTextRight:SetFontObject(SystemFont_Outline_Small);
+		PetFrameManaBarText:SetFontObject(SystemFont_Outline_Small);
 		PetFrameManaBarTextLeft:SetFontObject(SystemFont_Outline_Small);
 		PetFrameManaBarTextRight:SetFontObject(SystemFont_Outline_Small);
 	end
 end
-hooksecurefunc("PlayerFrame_ToPlayerArt", whoaPetFrame)
+hooksecurefunc("PlayerFrame_ToPlayerArt", petFrame)
 
-local function whoaPetFrame_Update (self, override)
+local function petFrameSelector (self, override)
 	if ( (not PlayerFrame.animating) or (override) ) then
 		if ( UnitIsVisible(self.unit) and PetUsesPetFrame() and not PlayerFrame.vehicleHidesPet ) then
 			if ( UnitPowerMax(self.unit) == 0 ) then
@@ -113,9 +124,9 @@ local function whoaPetFrame_Update (self, override)
 		end
 	end
 end
-hooksecurefunc("PetFrame_Update", whoaPetFrame_Update)
+hooksecurefunc("PetFrame_Update", petFrameSelector)
 
-local function whoaPetFrameBg()
+local function petFrameBg()
 	local f = CreateFrame("Frame",nil,PetFrame)
 	f:SetFrameStrata("BACKGROUND")
 	f:SetSize(70,18);
@@ -126,4 +137,4 @@ local function whoaPetFrameBg()
 	f:SetPoint("CENTER",16,-5);
 	f:Show()
 end
-whoaPetFrameBg();
+petFrameBg();

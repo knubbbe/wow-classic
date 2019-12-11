@@ -2,11 +2,12 @@
 ## Title: whoa |cFFFFFFFFUnitFrames|r (for WoW Classic)
 ## Notes: Modified unit frames.
 ## Author: whoarrior, delabarra
-## Version: 1.3.2
+## Version: 1.3.3
 ## SavedVariables: cfg
 
-wSettings.lua
+
 whoaUnitFrames.lua
 wPlayerFrame.lua
 wTargetFrame.lua
 wPartyFrames.lua
+wSettings.lua
