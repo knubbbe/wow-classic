@@ -1,0 +1,23 @@
+v1.0
+
+Fix chat spam about "no longer showing messages" (issue #7)
+Fix dropdown-related (?) crash (issue #1)
+
+v1.0b2
+
+Added notify functionality--very useful!
+Individual dungeons can now be selected
+Added raids & battlegrounds
+Newly-become active tags now show up automatically when using the "Active" filter
+Player's message history are now shown in the tooltip
+Added "time ago" label for messages
+Old messages now disappear from the list like they should
+Filters are a bit more intuitive
+Now shows inline icons in messages
+If friends appear in the list, they now have a little icon
+Fixed crash when non-player chat messages were received
+Fixed crash if the GUI was opened before any chat events had been received
+
+v1.0b1
+
+First release

@@ -1,0 +1,26 @@
+## Interface: 11302
+## Title: SlashFour
+## Notes: Easily browse what people are looking for in common chat channels. Open with |cFFFFD200/four|r, |cFFFFD200/lfg|r, or with keybinding.
+## Version: 1.0
+## Author: stianhoiland
+## SavedVariables: SlashFourDB
+## SavedVariablesPerCharacter: SlashFourDBChar
+
+Localization\base.lua
+#Localization\enUS.lua
+Localization\enGB.lua
+#Localization\deDE.lua
+
+Addon.lua
+Debug.lua
+Events.lua
+Utils.lua
+Store.lua
+DataModel.lua
+TagsDataSource.lua
+ScrollList.lua
+ScrollList.xml
+ScrollListDataSource.lua
+DropDownMenuDataSource.lua
+LFGFrame.lua
+LFGFrame.xml
