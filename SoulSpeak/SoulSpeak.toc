@@ -1,0 +1,60 @@
+## Title: SoulSpeak |cff7fff7f -Ace3-
+## X-Curse-Packaged-Version: v8.04-classic
+## X-Curse-Project-Name: SoulSpeak
+## X-Curse-Project-ID: soulspeak
+
+## Notes: SoulSpeak is a small Ace3/LDB automatic chat/emote addon. For time being warlocks only!
+## Notes-deDE: SoulSpeak reagiert auf verschiedene Ereignisse mit Seele Emotes und Quotes! Builtin unterstützt LDB (Broker) Panels.
+## Notes-frFR: SoulSpeak réagit à plusieurs événements en utilisant des emotes et des citations! Inclut support pour les panneux LDB(Broker).
+## Notes-ruRU: SoulSpeak is a small Ace3/LDB automatic chat/emote addon. For time being warlocks only!
+
+## Author: Lilih
+## X-Author-Server: Zandalar Tribe (EU)
+## X-Author-Faction: Alliance
+## X-Email: Liiiliii06@gmail.com
+## X-Credits-Maintainer: Lilih
+## X-Credits-deDE: Localization: Royomunu
+## X-Credits-frFR: Localization: Kiala
+## X-Credits-ruRU: Localization: Anisimml, Worondo
+
+## Interface: 11302
+## Version: 8.04-classic
+## X-Date: Sep 19, 2019
+
+## X-Category: Chat/Communication
+## X-License: GNU General Public License v3 or later
+## X-Localizations: deDE - enUS - frFR - ruRU
+## X-LoadOn-Class: Warlock
+## X-Website: https://www.wowinterface.com/downloads/info25308-SoulSpeakclassic.html
+## X-Feedback: https://www.wowinterface.com/downloads/info25308-SoulSpeakclassic.html#comments
+
+## SavedVariables: SoulSpeakDB
+## SavedVariablesPerCharacter: SoulSpeakDB
+## LoadManagers: AddonLoader
+## X-Embeds: Ace3
+## OptionalDeps: Ace3
+## DefaultState: enabled
+
+#@no-lib-strip@
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceConsole-3.0\AceConsole-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\AceTimer-3.0\AceTimer-3.0.xml
+Libs\LibAboutPanel\lib.xml
+#@end-no-lib-strip@
+
+Locale-enUS.lua
+Locale-deDE.lua
+Locale-frFR.lua
+Locale-ruRU.lua
+Core.lua
+Bindings.xml

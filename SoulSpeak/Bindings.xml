@@ -1,0 +1,58 @@
+<Bindings  header="SOULSPEAK">
+	<Binding name="SSOPTIONS">
+			--PlaySound("igSpellBookOpen")
+				-- Fix for Blizzard addon panel (http://www.wowace.com/paste/8364)
+				-- Bail out if already loaded and up to date
+				local MAJOR, MINOR = "InterfaceOptionsFix", 1
+--				if _G[MAJOR] and _G[MAJOR].version >= MINOR then return end
+
+				-- Reuse the existing frame or create a new one
+				local frame = _G[MAJOR] or CreateFrame("Frame", MAJOR, _G.InterfaceOptionsFrame)
+				frame.version = MINOR
+
+				-- Hook once and the call the possibly upgraded methods
+				if not frame.Saved_InterfaceOptionsFrame_OpenToCategory then
+
+    			-- Save the unhooked function
+    			frame.Saved_InterfaceOptionsFrame_OpenToCategory = _G.InterfaceOptionsFrame_OpenToCategory
+
+    			hooksecurefunc("InterfaceOptionsFrame_OpenToCategory", function(...)
+        		return frame:InterfaceOptionsFrame_OpenToCategory(...)
+    			end)
+
+    			-- Please note that the frame is a child of InterfaceOptionsFrame, so OnUpdate won't called before InterfaceOptionsFrame is shown
+    			frame:SetScript('OnUpdate', function(_, ...)
+        		return frame:OnUpdate(...)
+    			end)
+				end
+
+				-- This will be called twice on first open : 
+				-- 1) with the panel which is actually wanted,
+				-- 2) with the "Control" panel from InterfaceOptionsFrame_OnShow (this is what actually cause the bug). 
+				function frame:InterfaceOptionsFrame_OpenToCategory(panel)
+    			self.panel = panel
+				end
+
+				function frame:OnUpdate()
+    			local panel = self.panel
+        
+    			-- Clean up
+    			self:SetScript('OnUpdate', nil)
+    			self:Hide()
+    			self.panel = nil
+    			self.InterfaceOptionsFrame_OpenToCategory = function() end
+
+    			-- Call the original InterfaceOptionsFrame_OpenToCategory with the last panel
+    			self.Saved_InterfaceOptionsFrame_OpenToCategory(panel)
+				end
+			-- EoF
+			InterfaceOptionsFrame_OpenToCategory(SoulSpeak.optionsFrame)
+	</Binding>
+	<Binding name="SSRELOADGFX">
+			RestartGx();
+	</Binding>
+	<Binding name="SSRELOADUI">
+			ReloadUI();
+	</Binding>
+
+</Bindings>

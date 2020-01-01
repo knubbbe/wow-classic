@@ -1,0 +1,12 @@
+tag 773514acb6a067c0998a6928b0c6cd88270c6fa6 v3.2.2
+Author:	Shadowed <shadowed.wow@gmail.com>
+Date:	Wed Jan 1 11:42:54 2020 -0800
+
+Tagging as release v3.2.2
+
+commit 54e25651942cc51e25943b0e883231c61b7d458b
+Author: Shadowed <shadowed.wow@gmail.com>
+Date:   Wed Jan 1 11:39:09 2020 -0800
+
+    Rework debug logging
+

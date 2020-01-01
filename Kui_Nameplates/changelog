@@ -1,3 +1,7 @@
+* (classic) fix a conflict with recent versions of DBM
+* (classic) make threat features available without another addon
+* (classic) update LibClassicCasterino, LibClassicDurations
+
 * (classic) bump toc
 
 * add profile export and import commands: `/knp export`, `/knp import`
