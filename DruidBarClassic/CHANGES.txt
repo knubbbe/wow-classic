@@ -1,22 +1,88 @@
-lightweight tag 40ba819f66b35ff297e2ba98f4d450f6f28f0817 0.7.2
+lightweight tag 9c82ce7720855b44dab6216cb1bd06ef3ebdf299 0.7.3
 Author:	GitHub <noreply@github.com>
-Date:	Mon Sep 30 22:43:07 2019 -0700
+Date:	Mon Jan 6 07:24:45 2020 -0800
 
-commit f9f9e4bc9f23f3bef236d29158f82ec8cbac440e
+commit 0d01ff05d8d55efd8cda19d24a85e581ce519ada
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Sep 30 22:14:46 2019 -0700
+Date:   Mon Jan 6 07:23:37 2020 -0800
 
-    Update version info
+    Remove accidently added file
 
-commit f9f9e4bc9f23f3bef236d29158f82ec8cbac440e
+commit 0d01ff05d8d55efd8cda19d24a85e581ce519ada
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Sep 30 22:14:46 2019 -0700
+Date:   Mon Jan 6 07:23:37 2020 -0800
 
-    Update version info
+    Remove accidently added file
 
-commit 56b231d83375b0d792b20f4cc7d845f0b4b25b98
+commit 9f62a0a4bcf156964b2f1d9f6be7c7fdef76076f
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Sep 30 22:13:10 2019 -0700
+Date:   Mon Jan 6 07:15:58 2020 -0800
 
-    Prevent addon loading if player isn't a druid
+    Update CHANGELOG
+
+commit b179cee3efc63e4221903889ecce7c9d656b0245
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 07:07:30 2020 -0800
+
+    Move the creation of minimap button so it loads position from DruidBarKey
+
+commit 81b56db30a25ff575da6524793a15aede4c813a5
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 06:34:27 2020 -0800
+
+    Initialize frame with movable so stored position can bet set on initial render
+
+commit c531ae958173aeeeb189a1c99562c33232983015
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 04:10:37 2020 -0800
+
+    Update CHANGELOG
+
+commit fbdeeacd324502d11703c9b34a1671da01c6ee11
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 04:08:11 2020 -0800
+
+    Fix draggable functionality
+
+commit c74bb7e05d3f463d7b7f670a654209ba7f2ad016
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 04:07:25 2020 -0800
+
+    Remove last references to Bestform
+
+commit 4a5754480e3a6f9b011efd55dbdd7779e96f6a3a
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 03:30:38 2020 -0800
+
+    Rename a couple functiuons for readability and add comments
+
+commit eb1a323f72440b80a5fed4b70b8a0a2a4acd0126
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 03:30:12 2020 -0800
+
+    Update addon version
+
+commit efcb259979c8f8bb0776c4241123f5ddb9a02e90
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Mon Jan 6 03:29:44 2020 -0800
+
+    Update wow version compatability
+
+commit d562ba5c0c11f22c85909fbb52d40c6a84cca24e
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Wed Oct 2 08:23:40 2019 -0700
+
+    Clean up the druid bar status method
+
+commit 4ceed98510c155621229d977fd327f1ecdeca395
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Wed Oct 2 08:22:55 2019 -0700
+
+    Remove unused method to obtain values of the cost of shapeshifting
+
+commit a377f4b8c91f9cb83041f821be4ee1bb123ca895
+Author: Tek Hudson <tek.hudson@gmail.com>
+Date:   Wed Oct 2 08:22:13 2019 -0700
+
+    Remove non-functional shapeshift code due to protected CastShapefiftForm method
 

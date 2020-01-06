@@ -72,6 +72,7 @@ function Brackets:RefreshPlayerData()
 
     self.realmBracketDB.playersMeta[PLAYER_NAME] = self.realmBracketDB.playersMeta[PLAYER_NAME] or {}
     self.realmBracketDB.playersMeta[PLAYER_NAME].seenToday = true
+    self.realmBracketDB.playersMeta[PLAYER_NAME].sourcedFromSender = true
     self.realmBracketDB.playersMeta[PLAYER_NAME].sender = PLAYER_NAME
 
     self.realmBracketDB.players[PLAYER_NAME] = {
@@ -208,6 +209,12 @@ function Brackets:ScanEligibleUnit(unit)
     RequestInspectHonorData()
 end
 
+function Brackets:PLAYER_ENTERING_WORLD()
+    self.queuedInspectData = nil
+    self.queuedHonorInspect = nil
+    self.skipHonorEvent = nil    
+end
+
 function Brackets:PLAYER_TARGET_CHANGED()
     self:ScanEligibleUnit("target")
 end
@@ -244,6 +251,7 @@ function Brackets:INSPECT_HONOR_UPDATE()
 
     self.realmBracketDB.playersMeta[inspectData.name] = self.realmBracketDB.playersMeta[inspectData.name] or {}
     self.realmBracketDB.playersMeta[inspectData.name].seenToday = true
+    self.realmBracketDB.playersMeta[inspectData.name].sourcedFromSender = true
     self.realmBracketDB.playersMeta[inspectData.name].sender = PLAYER_NAME
 
     self.realmBracketDB.players[inspectData.name] = {
@@ -338,6 +346,7 @@ hooksecurefunc("ClearInspectPlayer", function()
 end)
 
 local eventFrame = CreateFrame("Frame")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("INSPECT_HONOR_UPDATE")
 eventFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
 eventFrame:RegisterEvent("UPDATE_MOUSEOVER_UNIT")

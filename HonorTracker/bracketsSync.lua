@@ -3,13 +3,14 @@ local BracketsSync = HonorTracker:RegisterModule("BracketsSync")
 local AceSerializer = LibStub("AceSerializer-3.0")
 local Comms = HonorTracker:GetModule("Comms")
 local PLAYER_NAME = UnitName("player")
-local MAX_BOOTSTRAP_REQUEST_TIME = 3600 * 6
+local MAX_BOOTSTRAP_REQUEST_TIME = 3600 * 9
+local MAX_BOOTSTRAP_TIME = 3600 * 6
 local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, "Version")
 local L = HonorTracker.L
 
-local throttles = {}
 local pongsReceived
 local receivedDataFrom
+local bootstrapFinished
 
 function BracketsSync:CountPlayerData(fromSender)
     local totalFromSender = 0
@@ -31,17 +32,13 @@ function BracketsSync:CountPlayerData(fromSender)
 end
 
 function BracketsSync:OnLoad()
-    if( not self.db.config.debugMode ) then
-        return
-    end
-
     -- Don't bootstrap on the weekly reset
     if( self.db.resetTime.weeklyStart == self.db.resetTime.dailyStart ) then
-        self:Debug(1, "Skipping bootstrap since the week just started.")
+        self:Debug(2, "Skipping bootstrap since the week just started.")
         return
     -- Don't try and bootstrap too frequently
     elseif( self.realmBracketDB.lastBootstrapped and (GetServerTime() - self.realmBracketDB.lastBootstrapped) <= MAX_BOOTSTRAP_REQUEST_TIME ) then
-        self:Debug(1, "Skipping bootstrap, it's been too soon.")
+        self:Debug(2, "Skipping bootstrap, it's been too soon.")
         return
     end
 
@@ -58,11 +55,16 @@ function BracketsSync:OnLoad()
         if( self.timeElapsed < 10 ) then return end
         self:SetScript("OnUpdate", nil)
 
-        BracketsSync:BootstrapPingsDone()
+        BracketsSync:BootstrapPingsTimedOut()
     end)
 end
 
-function BracketsSync:BootstrapPingsDone()
+function BracketsSync:OnWeeklyReset()
+    self.realmBracketDB.bootstrapIgnored = {}
+    self.realmBracketDB.bootstrapThrottled = {}
+end
+
+function BracketsSync:BootstrapPingsTimedOut()
     -- Summarize and figure out who we're bootstrapping from
     local totalPings = 0
     local bestCandidate
@@ -71,19 +73,21 @@ function BracketsSync:BootstrapPingsDone()
     for name, data in pairs(pongsReceived) do
         totalPings = totalPings + 1
 
-        if( not self.realmBracketDB.bootstrapIgnored[bestCandidate] or (self.realmBracketDB.bootstrapIgnored[bestCandidate] < GetServerTime()) ) then
+        if( not self.realmBracketDB.bootstrapIgnored[name] or (self.realmBracketDB.bootstrapIgnored[name] < GetServerTime()) ) then
             if( not bestCandidate or data.totalPlayersToday > pongsReceived[bestCandidate].totalPlayersToday ) then
-                bestCandidate = name
-
                 -- v3.2 is broken and ignores whispers when we're in the same guild.
-                -- if we see that, we will just do a guild request.
-                directWhisper = data.version ~= "v3.2"
+                if( data.version ~= "v3.2" and ( data.allowed == nil or data.allowed == true ) and ( data.combat == nil or data.combat == false ) ) then
+                    bestCandidate = name
+                end
             end
         end
     end 
 
     if( totalPings == 0 ) then
         self:Debug(1, "Did not receive any pings within 10 seconds.")
+        return
+    elseif( bestCandidate == nil ) then
+        self:Debug(1, "Did not find any relevant candidates.")
         return
     end
 
@@ -92,12 +96,9 @@ function BracketsSync:BootstrapPingsDone()
     -- Now get ready to actually bootstrap
     pongsReceived = nil
     receivedDataFrom = {}
+    bootstrapFinished = {}
 
-    if( directWhisper ) then
-        Comms:SendPrivateMessage(sender, "bootstrap", {})
-    else
-        Comms:SendMessage("bootstrap", {})
-    end
+    Comms:SendPrivateMessage(bestCandidate, "bootstrap", {})
 
     self.realmBracketDB.lastBootstrapped = GetServerTime()
 
@@ -106,36 +107,51 @@ function BracketsSync:BootstrapPingsDone()
     -- Wait 60 seconds and then trigger our done phase
     self.timeElapsed = 0
     self.timerFrame:SetScript("OnUpdate", function(self, elapsed)
+        -- Immediately finish if we got a finished
+        if( bootstrapFinished[bestCandidate] ) then
+            self:Debug(2, "Received finished bootstrapping indicator from %s", bestCandidate)
+            self.timeElapsed = 99999
+        end
+
         self.timeElapsed = self.timeElapsed + elapsed
-        if( self.timeElapsed < 30 ) then return end
+        if( self.timeElapsed < 300 ) then return end
         self:SetScript("OnUpdate", nil)
 
-        BracketsSync:BootstrapDone(bestCandidate, totalPlayers, totalPlayersToday, totalFromSender)
+        BracketsSync:BootstrapTimedOut(bestCandidate, totalPlayers, totalPlayersToday, totalFromSender)
     end)
 end
 
-function BracketsSync:BootstrapDone(requestedFrom, totalPlayers, totalPlayersToday, totalFromSender)
-    local totalReceived = receivedDataFrom[requestedFrom]
+function BracketsSync:BootstrapTimedOut(sender, totalPlayers, totalPlayersToday, totalFromSender)
+    local totalReceived = receivedDataFrom[sender]
     receivedDataFrom = nil
+    bootstrapFinished = nil
 
     -- No data received.
     if( not totalReceived ) then
-        self:Debug(1, "Did not receive any data from %s, resetting our bootstrap timer and ignoring %s for now", requestedFrom, requestedFrom)
+        self:Debug(1, "Did not receive any data from %s, resetting our bootstrap timer and ignoring %s for now", sender, sender)
 
-        self.realmBracketDB.bootstrapIgnored[requestedFrom] = GetServerTime() + MAX_BOOTSTRAP_REQUEST_TIME
+        self.realmBracketDB.bootstrapIgnored[sender] = GetServerTime() + MAX_BOOTSTRAP_REQUEST_TIME
         self.realmBracketDB.lastBootstrapped = nil
         return
     end
 
-    local nowTotalPlayers, nowTotalPlayersToday, nowTotalFromSender = BracketsSync:CountPlayerData(requestedFrom)
+    local nowTotalPlayers, nowTotalPlayersToday, nowTotalFromSender = BracketsSync:CountPlayerData(sender)
 
     self:Debug(1, "Finished bootstrapping, received %d player records, %d new players, %d updated today and %d from %s specifically",
         totalReceived,
         (nowTotalPlayers - totalPlayers),
         (nowTotalPlayersToday - totalPlayersToday),
         (nowTotalFromSender - totalFromSender),
-        requestedFrom
+        sender
     )
+end
+
+function BracketsSync:BootstrapFinished(sender)
+    self:Debug(1, "Received bootstrap finished from %s", sender)
+
+    if( bootstrapFinished ) then
+        bootstrapFinished[sender] = true
+    end
 end
 
 -- Someone is requesting our data
@@ -151,15 +167,16 @@ function BracketsSync:Ping(sender, distributionType)
         end
     end
 
-    self:Debug(1, "Received ping from %s (via %s), responding with %d players, %d from today (version %s)", sender, distributionType, totalPlayers, totalPlayersToday, ADDON_VERSION)
-
     local response = {
         totalPlayers = totalPlayers,
         totalPlayersToday = totalPlayersToday,
         combat = InCombatLockdown(),
-        allowed = not throttles[requester] or (GetServerTime() - throttles[requester]) <= MAX_BOOTSTRAP_TIME,
+        allowed = not self.realmBracketDB.bootstrapThrottled[sender] or (GetServerTime() - self.realmBracketDB.bootstrapThrottled[sender]) <= MAX_BOOTSTRAP_TIME,
         version = ADDON_VERSION
     }
+
+    self:Debug(1, "Received ping from %s (via %s), responding with %d players, %d from today, sync allowed %s, in combat %s (version %s)",
+        sender, distributionType, totalPlayers, totalPlayersToday, response.allowed and "true" or "false", response.combat and "true" or "false", ADDON_VERSION)
 
     if( distributionType == "WHISPER" ) then
         Comms:SendPrivateMessage(sender, "pong", response)
@@ -185,25 +202,27 @@ function BracketsSync:Pong(sender, distributionType, data)
 end
 
 -- Bootstrap another players data set
-function BracketsSync:BootstrapData(requester)
+function BracketsSync:BootstrapData(sender)
     -- Only allow people to request a bootstrap every 6 hours
-    local currentTime = GetServerTime()
-    if( throttles[requester] and (GetServerTime() - throttles[requester]) <= MAX_BOOTSTRAP_TIME) then
-        self:Debug(1, "Ignoring bootstrap request from %s, as it's only been %d seconds since last request", requester, (GetServerTime() - throttles[requester]))
+    if( self.realmBracketDB.bootstrapThrottled[sender] and (GetServerTime() - self.realmBracketDB.bootstrapThrottled[sender]) <= MAX_BOOTSTRAP_TIME ) then
+        self:Debug(1, "Ignoring bootstrap request from %s, as it's only been %d seconds since last request",
+        sender, (GetServerTime() - self.realmBracketDB.bootstrapThrottled[sender]))
         return
     end
+
+    self.realmBracketDB.bootstrapThrottled[sender] = GetServerTime()
 
     -- Find all players we have data for
     local total = 0
     for name, data in pairs(self.realmBracketDB.players) do
         total = total + 1
 
-        Comms:SendPrivatePlayerData(requester, name, data)
+        Comms:SendPrivatePlayerData(sender, name)
     end
 
     Comms:SendPrivateMessage(sender, "bootstrapped", {})
 
-    self:Debug(1, "Sent %d players to %s", total, requester)
+    self:Debug(1, "Sent %d players to %s", total, sender)
 end
 
 -- Convert HonorSpy into our format
@@ -303,23 +322,20 @@ function BracketsSync:PersistData(sourceType, sender, distributionType, playerNa
     if( metadata ) then
         -- If we've seen the person today then our data takes priority
         if( metadata.seenToday ) then
-            if( sourceType == "HonorTracker" ) then
-                self:Debug(2, "Skipping %s from %s (via %s, %s) because our own data is fresh", playerName, sender, sourceType, distributionType)
-            end
+            self:Debug(sourceType == "HonorTracker" and 3 or 4,
+                "Skipping %s from %s (via %s, %s) because our own data is fresh", playerName, sender, sourceType, distributionType)
             return
         end
 
         if( metadata.trustedSource and not trustedSource ) then
             -- We have trusted data which is current as of todays reset
             if( existingData and existingData.lastChecked >= self.db.resetTime.dailyStart ) then
-                if( sourceType == "HonorTracker" ) then
-                    self:Debug(3, "Skipping %s from %s (via %s, %s) because our trusted data is current", playerName, sender, sourceType, distributionType)
-                end
+                self:Debug(sourceType == "HonorTracker" and 3 or 4,
+                    "Skipping %s from %s (via %s, %s) because our trusted data is current", playerName, sender, sourceType, distributionType)
                 return
             else
-                if( sourceType == "HonorTracker" ) then
-                    self:Debug(2, "Syncing %s from %s (via %s, %s) because our trusted data is not current to the reset", playerName, sender, sourceType, distributionType)
-                end
+                self:Debug(sourceType == "HonorTracker" and 2 or 3,
+                    "Syncing %s from %s (via %s, %s) because our trusted data is not current to the reset", playerName, sender, sourceType, distributionType)
             end
         end
     end
@@ -328,9 +344,16 @@ function BracketsSync:PersistData(sourceType, sender, distributionType, playerNa
         self:Debug(1, "Recording %s (RP = %d, HK = %d, Honor = %d) from %s (via %s, %s), data is %s seconds old", playerName, data.rankPoints, data.thisWeek.kills, data.thisWeek.honor, sender, sourceType, distributionType, (GetServerTime() - data.lastChecked))
     end
 
+    -- Pull out metadata we synced over
+    local persistMetadata = data.metadata
+    data.metadata = nil
+
     self.realmBracketDB.playersMeta[playerName] = self.realmBracketDB.playersMeta[playerName] or {}
     self.realmBracketDB.playersMeta[playerName].sender = sender
     self.realmBracketDB.playersMeta[playerName].trustedSource = trustedSource
+    self.realmBracketDB.playersMeta[playerName].sourcedFromSender = persistMetadata and persistMetadata.sourcedFromSender
+    self.realmBracketDB.playersMeta[playerName].sourceType = sourceType
+
     self.realmBracketDB.players[playerName] = data
     HonorTracker:Trigger("OnBracketDBUpdate", playerName)
 end
@@ -357,7 +380,7 @@ function BracketsSync:OnMessage(sender, distributionType, type, ...)
     elseif( type == "bootstrap" ) then
         self:BootstrapData(sender)
     elseif( type == "bootstrapped" ) then
-        -- TODO
+        self:BootstrapFinished(sender)
     elseif( type == "ping" ) then
         self:Ping(sender, distributionType)
     elseif( type == "pong" ) then

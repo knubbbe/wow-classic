@@ -6,6 +6,7 @@ local Stats = HonorTracker:GetModule("Stats")
 local L = HonorTracker.L
 
 local MAX_RANK_VALUE = {199, 210, 221, 233, 246, 260, 274, 288, 305, 321, 339, 357, 377, 398}
+local honorChatFrameFilter
 
 -- Cache a map of the rank name (localized) to the rank number
 function Display:OnLoad()
@@ -17,6 +18,14 @@ function Display:OnLoad()
 
 		local allianceName, rankNumber = GetPVPRankInfo(i, 1)
 		self.ranksMap[allianceName] = rankNumber
+	end
+
+	-- Inject our filter at the start to override what other addons are attempting to do.
+	local filters = ChatFrame_GetMessageEventFilters("CHAT_MSG_COMBAT_HONOR_GAIN")
+	if( not filters ) then
+		ChatFrame_AddMessageEventFilter("CHAT_MSG_COMBAT_HONOR_GAIN", honorChatFrameFilter)
+	else
+		table.insert(filters, 1, honorChatFrameFilter)
 	end
 end
 
@@ -65,7 +74,7 @@ ChatFrame_AddMessageEventFilter("CHAT_MSG_EMOTE", function(chatFrame, event, tex
 end)
 
 -- Make honor gain messages useful
-ChatFrame_AddMessageEventFilter("CHAT_MSG_COMBAT_HONOR_GAIN", function(chatFrame, event, text, ...)
+honorChatFrameFilter = function(chatFrame, event, text, ...)
 	if( Display.db.config.batchHonor and Display.snapshottedHonor ) then
 		return true, text, ...
 	end
@@ -120,7 +129,7 @@ ChatFrame_AddMessageEventFilter("CHAT_MSG_COMBAT_HONOR_GAIN", function(chatFrame
 	end
 
 	return false, text, ...
-end)
+end
 
 local function addColumnLine(line1, line2, color)
 	color = color or HIGHLIGHT_FONT_COLOR

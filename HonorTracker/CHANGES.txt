@@ -1,12 +1,12 @@
-tag 773514acb6a067c0998a6928b0c6cd88270c6fa6 v3.2.2
+tag c6f88870d8c99e7a0bdc93da1ceec7cfa006abfb v3.2.4.1
 Author:	Shadowed <shadowed.wow@gmail.com>
-Date:	Wed Jan 1 11:42:54 2020 -0800
+Date:	Sun Jan 5 22:37:41 2020 -0800
 
-Tagging as release v3.2.2
+Tagging as release v3.2.4.1
 
-commit 54e25651942cc51e25943b0e883231c61b7d458b
+commit d5e66009052b65e3df6f00177abd3417d0b3ca22
 Author: Shadowed <shadowed.wow@gmail.com>
-Date:   Wed Jan 1 11:39:09 2020 -0800
+Date:   Sun Jan 5 22:36:32 2020 -0800
 
-    Rework debug logging
+    Guard against player data missing
 

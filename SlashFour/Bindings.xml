@@ -1,5 +1,0 @@
-<Bindings>
-  <Binding name="Toggle LFG Browser" header="LFGKEYBINDINGS">
-    ToggleFrame(LFGFrame)
-  </Binding>
-</Bindings>

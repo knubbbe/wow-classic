@@ -55,9 +55,15 @@ function Tracking:CheckDayChange()
 		lastWeek = string.join(", ", GetPVPLastWeekStats()),
 	}
 
+	-- By default, we attempt to hinge off of yesterday/last week stats.
+	-- If we've gained no honor though, then will do it off of the timings since we can't detect
+	-- a standing change otherwise.
+
 	-- Check for daily reset
 	local yesterdayHonor = select(3, GetPVPYesterdayStats())
-	if( self.db.stateTags.yesterday and self.db.stateTags.yesterday ~= stateTags.yesterday ) then
+	if( ( self.db.stateTags.yesterday and self.db.stateTags.yesterday ~= stateTags.yesterday )
+		or ( yesterdayHonor == 0 and self.db.resetTime.dailyStart ~= ResetTime:DailyWindow(true) )
+	) then
 		-- Record our daily stats
 		local stats = Stats:CalculateToday()
 		stats.time = self.db.resetTime.dailyStart
@@ -78,7 +84,10 @@ function Tracking:CheckDayChange()
 	end
 
 	-- Check for weekly reset
-	if( self.db.stateTags.lastWeek and self.db.stateTags.lastWeek ~= stateTags.lastWeek ) then
+	local lastWeekHonor = select(3, GetPVPLastWeekStats())
+	if( ( self.db.stateTags.lastWeek and self.db.stateTags.lastWeek ~= stateTags.lastWeek )
+		or ( lastWeekHonor == 0 and self.db.resetTime.weeklyStart ~= ResetTime:WeeklyWindow(true) ) 
+	) then
 		self.db.lastWeek = CopyTable(self.db.thisWeek)
 		self.db.thisWeek = {}
 

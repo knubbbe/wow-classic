@@ -1,0 +1,17 @@
+<Ui
+	xmlns="http://www.blizzard.com/wow/ui/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+
+	<EditBox name="ClassicProfessionFilterSearchBoxTemplate" inherits="SearchBoxTemplate" mixin="ClassicProfessionFilterSearchBoxMixIn" autoFocus="false" virtual="true">
+		<Size>
+			<AbsDimension x="200" y="22"/>
+		</Size>
+		<Scripts>
+			<OnHide method="OnHide" />
+			<OnTextChanged method="OnTextChanged" />
+			<OnChar method="OnChar" />
+			<OnEscapePressed method="OnEscapePressed" />
+		</Scripts>
+	</EditBox>
+</Ui>

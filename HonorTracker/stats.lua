@@ -140,6 +140,64 @@ function Stats:DumpWeeklyBracket(thisWeek, lastWeek)
 	)
 end
 
+function Stats:DumpStanding(name)
+	if( name == "%t" ) then
+		if( not UnitExists("target") ) then
+			HonorTracker:Print(L["You do not have a target."])
+			return
+		end
+
+		name = UnitName("target")
+	elseif( not name or name == "" ) then
+        name = UnitName("player")
+	end
+	
+	if( UnitExists(name) and UnitRealmRelationship(name) ~= 1 ) then
+		HonorTracker:Print(L["You cannot view data for %s, since they are on a different realm."])
+		return
+	end
+
+    local sumAges = 0
+	local totalPlayers = 0
+	local foundName = nil
+    for checkName, checkData in pairs(self.realmBracketDB.players) do
+        sumAges = sumAges + (GetServerTime() - checkData.lastChecked)
+		totalPlayers = totalPlayers + 1
+		
+		if( string.lower(checkName) == string.lower(name) ) then
+			foundName = checkName
+		end
+    end
+
+    if( totalPlayers == 0 ) then
+        HonorTracker:Print(L["No data found yet. If the week just reset, you need to wait until other players start logging in."])
+		return
+	elseif( not foundName ) then
+		HonorTracker:Print(string.format(L["|cff33ff99%s|r: Cannot find any data"], name), true)
+		return
+    end
+
+    local estimate = HonorTracker:GetModule("Brackets"):Estimate(foundName)
+	if( not estimate ) then
+		HonorTracker:Print(string.format(L["|cff33ff99%s|r: Cannot find any data"], foundName), true)
+		return
+	end
+
+	local existingData = self.realmBracketDB.players[foundName]
+	HonorTracker:Print(
+		string.format(
+			L["|cff33ff99%s|r: Estimated standing %d (bracket %d), going from %s -> %s, pool size %d |4player:players;."],
+			foundName,
+			estimate.standing,
+			estimate.bracket,
+			Stats:RankPointsToRank(existingData.rankPoints),
+			Stats:RankPointsToRank(estimate.rankPoints),
+			totalPlayers
+		),
+		true
+	)
+end
+
 function Stats:CalculateToday()
 	local stats = {
 		recordedKills = 0,

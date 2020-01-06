@@ -1,0 +1,21 @@
+## Interface: 11303
+## Title: ClassicProfessionFilter
+## Notes: Filter your profession window for specific patterns/recipes
+## Version: 1.0.1
+## Author: Slainsvirtue-Mankrik
+##
+## LoadOnDemand: 0
+## OptionalDeps: LibStub, CallbackHandler-1.0
+## X-Embeds: LibStub, CallbackHandler-1.0
+
+#@no-lib-strip@
+lib\LibStub\LibStub.lua
+lib\CallbackHandler-1.0\CallbackHandler-1.0.xml
+#@end-no-lib-strip@
+
+addon.lua
+
+ProfessionFilter.lua
+ProfessionFilter.xml
+SkillFilter.lua
+CraftFilter.lua

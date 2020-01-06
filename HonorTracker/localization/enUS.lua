@@ -64,6 +64,7 @@ L["|cFFFFFFFFThis Week: Estimated to go from|r %s |cFFFFFFFFup to|r |cFF00FF00%s
 L["|cFFFFFFFFThis Week: Need|r %d |cFFFFFFFFmore HKs to be eligible for ranking"] = "|cFFFFFFFFThis Week: Need|r %d |cFFFFFFFFmore HKs to be eligible for ranking"
 L["|cFFFFFFFFYou are estimated to go from|r %s |cFFFFFFFFback to|r |cFFFF0000%s|r |cFFFFFFFFnext week|r"] = "|cFFFFFFFFYou are estimated to go from|r %s |cFFFFFFFFback to|r |cFFFF0000%s|r |cFFFFFFFFnext week|r"
 L["|cFFFFFFFFYou are estimated to go from|r %s |cFFFFFFFFup to|r |cFF00FF00%s|r |cFFFFFFFFnext week|r"] = "|cFFFFFFFFYou are estimated to go from|r %s |cFFFFFFFFup to|r |cFF00FF00%s|r |cFFFFFFFFnext week|r"
+L["Accuracy"] = "Accuracy"
 L["Actual Honor: %d, Kills: %d"] = "Actual Honor: %d, Kills: %d"
 L["Actual Honor: %d, Kills: %d, Contribution: %.1f%%"] = "Actual Honor: %d, Kills: %d, Contribution: %.1f%%"
 L["Actual Honor: %d, Kills: %d, Contribution: %d%%"] = "Actual Honor: %d, Kills: %d, Contribution: %d%%"
@@ -114,12 +115,15 @@ L["Finished %s after %s (%s in queue), gaining %d honor, %d from objectives and 
 L["Finished %s after %s, gaining %d honor from kills, %d from objectives, %d total"] = "Finished %s after %s, gaining %d honor from kills, %d from objectives, %d total"
 L["Finished %s after %s, gaining %d honor, %d from objectives and %d from kills"] = "Finished %s after %s, gaining %d honor, %d from objectives and %d from kills"
 L["Finished %s after %s, won by %s, gained %d honor total and %d from objectives."] = "Finished %s after %s, won by %s, gained %d honor total and %d from objectives."
+L["From Sender Themselves"] = "From Sender Themselves"
 L["Gained %d honor from objectives, no kills made."] = "Gained %d honor from objectives, no kills made."
 L["Gained %d rank points, %s percentile of bracket %d, now %s."] = "Gained %d rank points, %s percentile of bracket %d, now %s."
 L["Gained %d rank points, top %d%% of bracket %d, now %s."] = "Gained %d rank points, top %d%% of bracket %d, now %s."
 L["Games:"] = "Games:"
 L["General"] = "General"
 L["Help"] = "Help"
+L["Hide minimap button"] = "Hide minimap button"
+L["Hide the minimap button."] = "Hide the minimap button."
 L["Hold ALT + Right Click to delete this record."] = "Hold ALT + Right Click to delete this record."
 L["Hold CTRL + Right Click to blacklist data from %s."] = "Hold CTRL + Right Click to blacklist data from %s."
 L["Honor"] = "Honor"
@@ -134,6 +138,7 @@ L["If this is incorrect, post on CurseForge with '%s UTC' as the date we thought
 L["In some areas we will use the actual time it's supposed to roll over, as a way of detecting a day change without relying on 'Yesterday' data updating."] = "In some areas we will use the actual time it's supposed to roll over, as a way of detecting a day change without relying on 'Yesterday' data updating."
 L["Kill Honor:"] = "Kill Honor:"
 L["Killed %d |4player:players;, gaining %d honor from kills and %d honor from objectives."] = "Killed %d |4player:players;, gaining %d honor from kills and %d honor from objectives."
+L["Kills"] = "Kills"
 L["Kills:"] = "Kills:"
 L["Last Seen"] = "Last Seen"
 L["Last Weeks Daily Stats"] = "Last Weeks Daily Stats"
@@ -141,7 +146,9 @@ L["Left %s after %s (%s in queue), gaining %d honor, %d from objectives and %d f
 L["Left %s after %s, gained %d honor total and %d from objectives."] = "Left %s after %s, gained %d honor total and %d from objectives."
 L["Left %s after %s, gaining %d honor from kills, %d from objectives, %d total"] = "Left %s after %s, gaining %d honor from kills, %d from objectives, %d total"
 L["Left %s after %s, gaining %d honor, %d from objectives and %d from kills"] = "Left %s after %s, gaining %d honor, %d from objectives and %d from kills"
+L["Left Click:"] = "Left Click:"
 L["Lost %d rank points, decayed to %s this week."] = "Lost %d rank points, decayed to %s this week."
+L["Middle Click:"] = "Middle Click:"
 L["Name"] = "Name"
 L["No data found yet. If the week just reset, you need to wait until other players start logging in."] = "No data found yet. If the week just reset, you need to wait until other players start logging in."
 L["No data yet, wait for the next daily honor reset for data."] = "No data yet, wait for the next daily honor reset for data."
@@ -167,16 +174,22 @@ L["Recorded %d kills (avg %.2f honor per kill) across %d players (%.2f honor per
 L["Recorded %d kills (avg %.2f honor per kill) across %d players (avg %.2f kills and %.2f honor per player)"] = "Recorded %d kills (avg %.2f honor per kill) across %d players (avg %.2f kills and %.2f honor per player)"
 L["Recorded Kills:"] = "Recorded Kills:"
 L["Reset Window"] = "Reset Window"
+L["Right Click:"] = "Right Click:"
 L["Scroll to Self"] = "Scroll to Self"
 L["Scroll to wherever you are on the ranking list."] = "Scroll to wherever you are on the ranking list."
 L["Seen Today"] = "Seen Today"
+L["Sender Inspected"] = "Sender Inspected"
+L["Show Config"] = "Show Config"
 L["Show DR Tooltips"] = "Show DR Tooltips"
+L["Show Standings"] = "Show Standings"
+L["Show Target Standing"] = "Show Target Standing"
 L["Spam filtering for HonorSpy messages disabled."] = "Spam filtering for HonorSpy messages disabled."
 L["Spam filtering for HonorSpy messages enabled."] = "Spam filtering for HonorSpy messages enabled."
 L["Sum Duration:"] = "Sum Duration:"
 L["Sum Queue:"] = "Sum Queue:"
 L["Sync using guild channels"] = "Sync using guild channels"
 L["Sync using only guild channels"] = "Sync using only guild channels"
+L["Synced from Others"] = "Synced from Others"
 L["Syncing bracket data using only trusted guild channels."] = "Syncing bracket data using only trusted guild channels."
 L["Syncing bracket data using public and guild channels."] = "Syncing bracket data using public and guild channels."
 L["The player name to blacklist receiving data from."] = "The player name to blacklist receiving data from."
@@ -191,10 +204,12 @@ L["Warning! We believe honor has reset for the day. We recommend logging in/out 
 L["WARNING! You need to restart WoW to pick up changes for HonorTracker to work properly."] = "WARNING! You need to restart WoW to pick up changes for HonorTracker to work properly."
 L["We carried over %d |4player:players; over to HonorTracker, and HonorTracker will sync with other HonorTracker and HonorSpy users automatically."] = "We carried over %d |4player:players; over to HonorTracker, and HonorTracker will sync with other HonorTracker and HonorSpy users automatically."
 L["We carried over %d players over to HonorTracker, and HonorTracker will sync with other HonorTracker and HonorSpy users automatically."] = "We carried over %d players over to HonorTracker, and HonorTracker will sync with other HonorTracker and HonorSpy users automatically."
+L["Weekly reset just happened. You need to wait one daily reset for info to appear."] = "Weekly reset just happened. You need to wait one daily reset for info to appear."
 L["Weekly Reset On: %s"] = "Weekly Reset On: %s"
 L["While in combat, you will not see any honor gain messages, and once you leave combat you'll get a summary of honor gained."] = "While in combat, you will not see any honor gain messages, and once you leave combat you'll get a summary of honor gained."
 L["Yesterday's Estimated Honor"] = "Yesterday's Estimated Honor"
 L["You cannot view data for %s, since they are on a different realm."] = "You cannot view data for %s, since they are on a different realm."
+L["You do not have a target."] = "You do not have a target."
 L["You have not blacklisted data from anyone yet."] = "You have not blacklisted data from anyone yet."
 L["You must gain honor first for estimations."] = "You must gain honor first for estimations."
 L[ [=[Your Time: |cffffd100%s|r
@@ -204,6 +219,11 @@ Next Daily Reset: |cffffd100%s|r
 Next Weekly Reset: |cffffd100%s|r]=] ] = [=[Your Time: |cffffd100%s|r
 
 Server Time: |cffffd100%s|r
+Next Daily Reset: |cffffd100%s|r
+Next Weekly Reset: |cffffd100%s|r]=]
+L[ [=[Your Time: |cffffd100%s|r
+Next Daily Reset: |cffffd100%s|r
+Next Weekly Reset: |cffffd100%s|r]=] ] = [=[Your Time: |cffffd100%s|r
 Next Daily Reset: |cffffd100%s|r
 Next Weekly Reset: |cffffd100%s|r]=]
 L["Yourself"] = "Yourself"

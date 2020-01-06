@@ -7,56 +7,6 @@ local Comms = HonorTracker:GetModule("Comms")
 local Config = HonorTracker:GetModule("Config")
 local L = HonorTracker.L
 
-function SlashConfig:ShowStanding(name)
-    if( name == "%t" and UnitExists("target") ) then
-        name = UnitName("target")
-    elseif( not name or name == "" ) then
-        name = UnitName("player")
-	end
-	
-	if( UnitExists(name) and UnitRealmRelationship(name) ~= 1 ) then
-		HonorTracker:Print(L["You cannot view data for %s, since they are on a different realm."])
-		return
-	end
-
-    local sumAges = 0
-    local totalPlayers = 0
-    local topHonorName = nil
-    for checkName, checkData in pairs(self.realmBracketDB.players) do
-        sumAges = sumAges + (GetServerTime() - checkData.lastChecked)
-        totalPlayers = totalPlayers + 1
-
-        local topHonorData = self.realmBracketDB.players[topHonorName]
-        if( not topHonorData or checkData.thisWeek.honor > topHonorData.thisWeek.honor ) then
-            topHonorName = checkName
-        end
-    end
-
-    if( totalPlayers == 0 ) then
-        HonorTracker:Print(L["No data found yet. If the week just reset, you need to wait until other players start logging in."])
-        return
-    end
-
-    local estimate = Brackets:Estimate(name)
-    if( estimate ) then
-        local existingData = self.realmBracketDB.players[name]
-        HonorTracker:Print(
-            string.format(
-                L["|cff33ff99%s|r: Estimated standing %d (bracket %d), going from %s -> %s, pool size %d |4player:players;."],
-                name,
-                estimate.standing,
-				estimate.bracket,
-				Stats:RankPointsToRank(existingData.rankPoints),
-				Stats:RankPointsToRank(estimate.rankPoints),
-				totalPlayers
-            ),
-            true
-        )
-    else
-        HonorTracker:Print(string.format(L["|cff33ff99%s|r: Cannot find any data"], name), true)
-    end
-end
-
 function SlashConfig:Parse(msg)
 	local type, data = string.split(" ", msg, 2)
 	if( type ) then type = string.lower(type) end
@@ -64,7 +14,7 @@ function SlashConfig:Parse(msg)
 	if (type == "show" ) then
 		BracketUI:Show()		
 	elseif (type == "standing") then
-		self:ShowStanding(data)
+		Stats:DumpStanding(data)
 	elseif (type == "today") then
 		HonorTracker:Print(
 			string.format(

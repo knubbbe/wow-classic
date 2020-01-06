@@ -1,13 +1,56 @@
-local HonorTracker = select(2, ...)
+local ADDON_NAME, HonorTracker = ...
 local Config = HonorTracker:RegisterModule("Config")
 local AceConfigDialog = LibStub("AceConfigDialog-3.0")
 local AceConfig = LibStub("AceConfig-3.0")
 local AceRegistry = LibStub("AceConfigRegistry-3.0")
 local Brackets = HonorTracker:GetModule("Brackets")
 local ResetTime = HonorTracker:GetModule("ResetTime")
+local ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, "Version")
 
 local L = HonorTracker.L
 local initialOptionsFrame, options
+
+function Config:OnLoad()
+	local LDI = LibStub("LibDBIcon-1.0", true)
+	local LDB = LibStub("LibDataBroker-1.1", true)
+	if( not LDI or not LDB ) then return end
+	
+	local brokerData = LDB:NewDataObject("HonorTracker",
+		{
+			type = "data source",
+			text = "HonorTracker",
+			icon = "Interface\\Icons\\spell_nature_bloodlust",
+			OnClick = function(self, button) 
+				if( button == "LeftButton" ) then
+					HonorTracker:GetModule("BracketUI"):Toggle()
+				elseif( button == "MiddleButton" ) then
+					if( InterfaceOptionsFrame and InterfaceOptionsFrame:IsVisible() ) then
+						InterfaceOptionsFrame:Hide()
+					else
+						Config:Show()
+					end
+				elseif( button == "RightButton" ) then
+					HonorTracker:GetModule("Stats"):DumpStanding("%t")
+				end
+			end,
+			OnTooltipShow = function(tooltip)
+				color = color or HIGHLIGHT_FONT_COLOR
+				GameTooltip:AddDoubleLine(line1, line2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+			
+
+				tooltip:AddDoubleLine("HonorTracker", string.format("|cff33ff99%s|r", ADDON_VERSION))
+				tooltip:AddDoubleLine(L["Left Click:"], L["Show Standings"],
+					NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+				tooltip:AddDoubleLine(L["Right Click:"], L["Show Target Standing"],
+					NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+				tooltip:AddDoubleLine(L["Middle Click:"], L["Show Config"],
+					NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+			end
+		}
+	)
+
+	LDI:Register("HonorTracker", brokerData, self.db.config.minimap)
+end
 
 function Config:UpdateOptions()
 	local totalBlacklisted = 0
@@ -91,6 +134,28 @@ options = {
 					desc = L["While in combat, you will not see any honor gain messages, and once you leave combat you'll get a summary of honor gained."],
 					width = "full",
 				},
+				hideMinimap = {
+					order = 4,
+					type = "toggle",
+					name = L["Hide minimap button"],
+					desc = L["Hide the minimap button."],
+					width = "full",
+					set = function(info, value)
+						HonorTracker.db.config.minimap.hide = not HonorTracker.db.config.minimap.hide
+
+						local LDI = LibStub("LibDBIcon-1.0", true)
+						if( LDI ) then
+							if( HonorTracker.db.config.minimap.hide ) then
+								LDI:Hide("HonorTracker")
+							else
+								LDI:Show("HonorTracker")
+							end
+						end
+					end,
+					get = function(info)
+						return HonorTracker.db.config.minimap.hide
+					end,
+				}
 			}
 		},
 		dailyReset = {
@@ -125,8 +190,7 @@ options = {
 							order = 0,
 							type = "description",
 							name = function()
-								return string.format(L["Your Time: |cffffd100%s|r\n\nServer Time: |cffffd100%s|r\nNext Daily Reset: |cffffd100%s|r\nNext Weekly Reset: |cffffd100%s|r"],
-									date("%x %X", time()),
+								return string.format(L["Your Time: |cffffd100%s|r\nNext Daily Reset: |cffffd100%s|r\nNext Weekly Reset: |cffffd100%s|r"],
 									date("%x %X", GetServerTime()),
 									date("%x %X", HonorTracker.db.resetTime.dailyEnd),
 									date("%x %X", HonorTracker.db.resetTime.weeklyEnd)

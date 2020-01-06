@@ -98,16 +98,21 @@ function HonorTracker:CheckDB()
 	
 	self.globalDB.brackets = self.globalDB.brackets or {}
 	self.globalDB.brackets[GetRealmName()] = self.globalDB.brackets[GetRealmName()] or {}
+	self.realmBracketDB = self.globalDB.brackets[GetRealmName()]
+
 	self.globalDB.brackets[GetRealmName()].players = self.globalDB.brackets[GetRealmName()].players or {}
 	self.globalDB.brackets[GetRealmName()].playersMeta = self.globalDB.brackets[GetRealmName()].playersMeta or {}
 	self.globalDB.brackets[GetRealmName()].senderBlacklist = self.globalDB.brackets[GetRealmName()].senderBlacklist or {}
 	self.globalDB.brackets[GetRealmName()].bootstrapIgnored = self.globalDB.brackets[GetRealmName()].bootstrapIgnored or {}
+	self.globalDB.brackets[GetRealmName()].bootstrapThrottled = self.globalDB.brackets[GetRealmName()].bootstrapThrottled or {}
 
 	-- Local per character DB
 	local Stats = self:GetModule("Stats")
 
 	self.db = HonorTrackerDB
 	self.db.config = self.db.config or {tooltips = true, spam = true, internalComms = false, batchHonor = false} 
+	self.db.config.minimap = self.db.config.minimap or {}
+	
 	self.db.stateTags = self.db.stateTags or {}
 
 	if( not self.db.resetTime ) then

@@ -5,7 +5,7 @@ local Stats = HonorTracker:GetModule("Stats")
 local L = HonorTracker.L
 
 local TOTAL_SCROLL_ROWS = 22
-local TOTAL_COLUMNS = 7
+local TOTAL_COLUMNS = 8
 local PLAYER_NAME = UnitName("player")
 
 -- Defaults to keep sorting sane when we have zero values
@@ -13,6 +13,14 @@ local DEFAULT_SORT_VALUE = {
     ["lastWeek.honor"] = 0,
     ["lastWeek.standing"] = 99999999
 }
+
+function BracketUI:Toggle()
+    if( not self.frame or not self.frame:IsVisible() ) then
+        self:Show()
+    else
+        self.frame:Hide()
+    end
+end
 
 function BracketUI:Show()
     self.sortingBy = "thisWeek.honor"
@@ -59,7 +67,7 @@ function BracketUI:UpdateStats()
     end
 
     local playerName = UnitName("player")
-    if( GetPVPThisWeekStats() >= 15 ) then
+    if( GetPVPThisWeekStats() >= 15 and self.realmBracketDB.players[playerName] ) then
         local playerData = self.realmBracketDB.players[playerName]
         local estimate = Brackets:Estimate(playerName)
 
@@ -98,7 +106,11 @@ function BracketUI:UpdateStats()
         self.statsFrame.lastWeekText:SetText(L["|cFFFFFFFFLast Week: No ranking data yet, wait until next week."])
     end
 
-    self.statsFrame.generalText:SetFormattedText(L["|cFFFFFFFFEligible Pool Size:|r %d |cFFFFFFFF(Players with >=15 HKs)|r"], totalPlayers)
+    if( self.db.resetTime.weeklyStart == self.db.resetTime.dailyStart ) then
+        self.statsFrame.generalText:SetFormattedText("|cffff1919%s|r", L["Weekly reset just happened. You need to wait one daily reset for info to appear."])
+    else
+        self.statsFrame.generalText:SetFormattedText(L["|cFFFFFFFFEligible Pool Size:|r %d |cFFFFFFFF(Players with >=15 HKs)|r"], totalPlayers)
+    end
 end
 
 function BracketUI:SortBy(field)
@@ -257,19 +269,21 @@ function BracketUI:UpdateTable()
             local playerName = data[1]
             local playerEstRank = data[2]
             local playerData = data[3]
+            local playerMeta = self.realmBracketDB.playersMeta[playerName]
     
             row[1]:SetText(self.sortingBy == "thisWeek.honor" and self.sortingDirection and playerEstRank or "--")
             row[2]:SetText(playerName)
             row[2]:SetWidth(80)
             row[2]:SetTextColor(RAID_CLASS_COLORS[playerData.class]:GetRGBA())
             row[3]:SetText(playerData.thisWeek.honor)
-            row[4]:SetText(playerData.rank)
-            row[5]:SetText(playerData.lastWeek.standing == 0 and "---" or playerData.lastWeek.standing)
-            row[6]:SetText(playerData.lastWeek.honor == 0 and "---" or playerData.lastWeek.honor)
+            row[4]:SetText(playerMeta.sourceType == "HonorSpy" and "--" or playerData.thisWeek.kills)
+            row[5]:SetText(playerData.rank)
+            row[6]:SetText(playerData.lastWeek.standing == 0 and "---" or playerData.lastWeek.standing)
+            row[7]:SetText(playerData.lastWeek.honor == 0 and "---" or playerData.lastWeek.honor)
             
             if( playerName == selfName ) then
                 frame:SetBackdropColor(1, 1, 1, 0.20)
-                row[7]:SetText("---")
+                row[8]:SetText("---")
             else
                 if( zebraIndex == 0 ) then
                     zebraIndex = 1
@@ -279,7 +293,7 @@ function BracketUI:UpdateTable()
                     frame:SetBackdropColor(0, 0, 0, 0)
                 end
 
-                row[7]:SetText(HonorTracker:FormatPeriod(currentTime - playerData.lastChecked))
+                row[8]:SetText(HonorTracker:FormatPeriod(currentTime - playerData.lastChecked))
             end
 
             for _, fontString in pairs(row) do
@@ -348,6 +362,8 @@ function BracketUI:ShowTooltip(row)
 
         GameTooltip:SetText(playerName, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
 
+
+
         if( self.db.resetTime.dailyStart <= playerData.lastChecked ) then
             GameTooltip:AddDoubleLine(L["Data Age"], L["Seen Today"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
         else
@@ -364,6 +380,14 @@ function BracketUI:ShowTooltip(row)
             end
         else
             GameTooltip:AddDoubleLine(L["Data Source"], L["Unknown"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b)
+        end
+
+        if( playerMeta.sender ~= PLAYER_NAME ) then
+            if( playerMeta.sourcedFromSender == true ) then
+                GameTooltip:AddDoubleLine(L["Accuracy"], L["Sender Inspected"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b)
+            elseif( playerMeta.sourcedFromSender == false ) then
+                GameTooltip:AddDoubleLine(L["Accuracy"], L["Synced from Others"])
+            end
         end
 
         if( playerName ~= PLAYER_NAME ) then
@@ -384,7 +408,7 @@ function BracketUI:Setup()
     local wrappedUpdate = function(self) BracketUI:Update() end
 
     self.frame = CreateFrame("Frame", "HonorTrackerUI", UIParent)
-	self.frame:SetWidth(600)
+	self.frame:SetWidth(640)
 	self.frame:SetHeight(524)
 	self.frame:SetMovable(true)
 	self.frame:EnableMouse(true)
@@ -564,25 +588,30 @@ function BracketUI:Setup()
     self.sortColumns[3]:SetPoint("TOPLEFT", self.sortColumns[2], "TOPRIGHT", 10, 0)
     self.sortColumns[3].sortField = "thisWeek.honor"
 
-    self.sortColumns[4]:SetText(L["Rank"])
+    self.sortColumns[4]:SetText(L["Kills"])
     self.sortColumns[4]:SetWidth(50)
     self.sortColumns[4]:SetPoint("TOPLEFT", self.sortColumns[3], "TOPRIGHT", 10, 0)
-    self.sortColumns[4].sortField = "rankPoints"
+    self.sortColumns[4].sortField = "thisWeek.kills"
+
+    self.sortColumns[5]:SetText(L["Rank"])
+    self.sortColumns[5]:SetWidth(50)
+    self.sortColumns[5]:SetPoint("TOPLEFT", self.sortColumns[4], "TOPRIGHT", 10, 0)
+    self.sortColumns[5].sortField = "rankPoints"
     
-    self.sortColumns[5]:SetText(L["Final Standing"])
-    self.sortColumns[5]:SetWidth(100)
-    self.sortColumns[5]:SetPoint("TOPLEFT", self.sortColumns[4], "TOPRIGHT", 28, 0)
-    self.sortColumns[5].sortField = "lastWeek.standing"
-
-    self.sortColumns[6]:SetText(L["Final Honor"])
+    self.sortColumns[6]:SetText(L["Final Standing"])
     self.sortColumns[6]:SetWidth(90)
-    self.sortColumns[6]:SetPoint("TOPLEFT", self.sortColumns[5], "TOPRIGHT", 10, 0)
-    self.sortColumns[6].sortField = "lastWeek.honor"
+    self.sortColumns[6]:SetPoint("TOPLEFT", self.sortColumns[5], "TOPRIGHT", 28, 0)
+    self.sortColumns[6].sortField = "lastWeek.standing"
 
-    self.sortColumns[7]:SetText(L["Last Seen"])
+    self.sortColumns[7]:SetText(L["Final Honor"])
     self.sortColumns[7]:SetWidth(80)
     self.sortColumns[7]:SetPoint("TOPLEFT", self.sortColumns[6], "TOPRIGHT", 10, 0)
-    self.sortColumns[7].sortField = "lastChecked"
+    self.sortColumns[7].sortField = "lastWeek.honor"
+
+    self.sortColumns[8]:SetText(L["Last Seen"])
+    self.sortColumns[8]:SetWidth(80)
+    self.sortColumns[8]:SetPoint("TOPLEFT", self.sortColumns[7], "TOPRIGHT", 10, 0)
+    self.sortColumns[8].sortField = "lastChecked"
 
     for i, button in pairs(self.sortColumns) do
         local fontString = button:GetFontString()

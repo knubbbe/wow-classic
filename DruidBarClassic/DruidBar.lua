@@ -29,9 +29,6 @@ function DruidBar_OnLoad()
 		SLASH_DRUIDBARSLASH1 = "/dbar";
 		SLASH_DRUIDBARSLASH2 = "/druidbar";
 		DBarSpellCatch:SetOwner(DruidBarUpdateFrame, "ANCHOR_NONE");
-
-	    -- Creating the minimap config icon
-		DruidBar_MinimapButton:Register("DruidBarMinimapIcon", minimapIconLDB, DruidBarKey);
 	end
 end
 function EventRegistration(event)
@@ -166,6 +163,9 @@ function Load_Variables(className)
 		ShapeshiftBar_ChangeForm = DruidBar_ChangeForm;
 		shiftload = true;
 	end
+
+  -- Creating the minimap config icon
+	DruidBar_MinimapButton:Register("DruidBarMinimapIcon", minimapIconLDB, DruidBarKey);
 end
 
 function DruidBar_ReflectionCheck()
@@ -194,35 +194,6 @@ function DruidBar_ReflectionCheck()
 	return managain;
 end
 
---Gets the mana cost of your shapeshifting spells.
-function DruidBar_GetShapeshiftCost()
-	if not DBarSpellCatch:IsOwned(DruidBarUpdateFrame) then
-		DBarSpellCatch:SetOwner(DruidBarUpdateFrame, "ANCHOR_NONE");
-	end
-
-	DruidBarKey.subtractmana = 0;
-	local a, b, c, d = GetSpellTabInfo(4);
-	for i = 1, c+d, 1 do
-		local spellname = GetSpellBookItemName(i, BOOKTYPE_SPELL);
-		spellname = strlower(spellname);
-		if spellname and (strfind(spellname, DRUIDBAR_CAT_FORM) or strfind(spellname, DRUIDBAR_BEAR_FORM)) then
-			DBarSpellCatch:SetSpellBookItem(i, BOOKTYPE_SPELL);
-			local msg = DBarSpellCatchTextLeft2:GetText();
-			if DruidBarKey.Debug then DEFAULT_CHAT_FRAME:AddMessage(msg); end
-			local params;
-			if msg then
-				local index = strfind(msg, DRUIDBAR_MANA_DELIM);
-				if index then
-					if (GetLocale() == "frFR" or GetLocale() == "koKR") then params = strsub(msg, index+1); else params = strsub(msg, 1, index-1); end
-					if DruidBarKey.Debug then DEFAULT_CHAT_FRAME:AddMessage(params); end
-					DruidBarKey.subtractmana = tonumber(params);
-					if DruidBarKey.subtractmana and DruidBarKey.subtractmana > 0 then return; end
-				end
-			end
-		end
-	end
-end
-
 function DruidBar_Subtract()
 	if not firstshift then
 		local j = 1;
@@ -245,10 +216,12 @@ end
 --Change form! whatever you cast, if you're shifted, you'll shift back to caster.
 function DruidBar_ChangeForm(id)
 	local changingback = nil;
+
 	for i = 1, GetNumShapeshiftForms() do
 		local icon, name, active = GetShapeshiftFormInfo(i);
 		if active and not DruidBarKey.DontShiftBack then id = i; changingback = true; end
 	end
+
 	if (id) then
 		pre_ShapeshiftBar_ChangeForm(id);
 		return nil;
@@ -333,12 +306,19 @@ function DruidBar_MainGraphics()
 			DruidBar_Anchored = nil;
 		end
 
+		-- Set the position lock and dragability
 		if DruidBarKey.Lock then
 			dbarShow(DruidBarDontMove);
 			DruidBarFrame:EnableMouse(0);
+			DruidBarFrame:SetMovable(false)
+			DruidBarFrame:RegisterForDrag()
 		else
 			dbarHide(DruidBarDontMove);
 			DruidBarFrame:EnableMouse(1);
+			DruidBarFrame:SetMovable(true)
+			DruidBarFrame:RegisterForDrag("LeftButton")
+			DruidBarFrame:SetScript("OnDragStart", DruidBarFrame.StartMoving)
+			DruidBarFrame:SetScript("OnDragStop", DruidBarFrame.StopMovingOrSizing)
 		end
 	else
 		dbarHide(DruidBarFrame);
@@ -631,8 +611,6 @@ function DruidBar_Enable_ChatCommandHandler(text)
 		DRUIDBAR_FrameSet();
 	elseif msg[1] == "status" then
 		DruidBar_Status();
-	elseif msg[1] == "best" then
-		DruidBar_ChangeBestForm();
 	elseif msg[1] == "color" then
 		if tonumber(msg[3]) then
 			if msg[2] == "r" then
@@ -685,67 +663,43 @@ function DruidBar_Status()
 	DruidBar_Print("Hiding when mana is full is "..DruidBar_On(DruidBarKey.HideWhenFull));
 	DruidBar_Print("Replacing the Player Frame's mana bar is "..DruidBar_On(DruidBarKey.Replace));
 	DruidBar_Print("Showing under the Player Frame is "..DruidBar_On(DruidBarKey.Player));
-	local str;
-	if not DruidBarKey.Text then str = "|CFF888888Off|r"; elseif DruidBarKey.Text == 1 then str = "|CFFFFFFFFModern|r"; else str = "|CFF00FF00Classic|r"; end
-	DruidBar_Print("The current style of text is "..str);
-	if not DruidBarKey.Percent then str = "|CFF00FF00Percent and Raw|r"; elseif DruidBarKey.Percent == 1 then str = "|CFFFF00FFRaw|r"; else str = "|CFF0000FFPercent|r"; end
-	DruidBar_Print("The current display of text is "..str);
+	DruidBar_Print("The current style of text is "..DruidBar_Text_Style());
+	DruidBar_Print("The current display of text is "..DruidBar_Text_Display());
 	DruidBar_Print("Debugging is "..DruidBar_On(DruidBarKey.Debug));
 end
 
-function DruidBar_On(tog)
-	if tog then
+function DruidBar_On(druidBarKeyValue)
+	if druidBarKeyValue then
 		return "|CFF00FF00On.|r";
 	else
 		return "|CFFFF0000Off.|r";
 	end
 end
 
+function DruidBar_Text_Style()
+	if not DruidBarKey.Text then
+		return "|CFF888888Off|r";
+	elseif DruidBarKey.Text == 1 then
+		return "|CFFFFFFFFModern|r";
+	else
+		return "|CFF00FF00Classic|r";
+	end
+end
+
+function DruidBar_Text_Display()
+	if not DruidBarKey.Percent then
+		return "|CFF00FF00Percent and Raw|r";
+	elseif DruidBarKey.Percent == 1 then
+		return "|CFFFF00FFRaw|r";
+	else
+		return "|CFF0000FFPercent|r";
+	end
+end
+
 function DruidBar_MaxManaScript()
-	-- TODO: not sure what int is in this case, RENAME
-	local _, int = UnitStat("player", 4);
-
-	DruidBar_GetShapeshiftCost();
-	if UnitPowerType("player") == 0 then
-		if UnitPowerMax("player") > 0 then
-			DruidBarKey.maxmana = UnitPowerMax("player");
-			DruidBarKey.currentmana = UnitPower("player");
-			DruidBarKey.int = int;
-		end
-	elseif UnitPowerType("player") ~= 0 then
-		if DruidBarKey.int ~= int then
-			if int > DruidBarKey.int then
-				local dif = int - DruidBarKey.int;
-				DruidBarKey.maxmana = DruidBarKey.maxmana + (dif * 15);
-				DruidBarKey.int = int;
-			elseif int < DruidBarKey.int then
-				local dif = DruidBarKey.int - int;
-				DruidBarKey.maxmana = DruidBarKey.maxmana - (dif * 15);
-				DruidBarKey.int = int;
-			end
-		end
-		if DruidBarKey.currentmana > DruidBarKey.maxmana then
-			DruidBarKey.currentmana = DruidBarKey.maxmana;
-		end
-	end
-	DruidBarKey.extra = 0;
-	for i = 1, 18 do
-		DBarSpellCatch:ClearLines();
-		DBarSpellCatch:SetInventoryItem("player", i);
-		for j = 1, DBarSpellCatch:NumLines() do
-			local strchek = getglobal("DBarSpellCatchTextLeft"..j):GetText();
-			if strchek then
-
-				if strfind(strchek, DRUIDBAR_REGEN1) then
-					DruidBarKey.extra = DruidBarKey.extra + string.gsub(strchek, DRUIDBAR_REGEN3, "%1")
-				end
-				if strfind(strchek, DRUIDBAR_REGEN2) then
-					DruidBarKey.extra = DruidBarKey.extra + string.gsub(strchek, DRUIDBAR_REGEN4, "%1");
-				end
-			end
-		end
-	end
-	DruidBarKey.extra = (DruidBarKey.extra * 2) / 5;
+	DruidBarKey.maxmana = UnitPowerMax("player", 0);
+	DruidBarKey.currentmana = UnitPower("player", 0);
+	DruidBarKey.int = intellect;
 end
 
 function DruidBar_ShouldBeVisible()
@@ -762,104 +716,4 @@ function DruidBar_ColorAndStrataAndTexture()
 	DruidBarManaBackground:SetTexture(DruidBarKey.manatexture);
 	DruidBarBorder:SetTexture(DruidBarKey.bordertexture);
 	DruidBarManaBackground:SetDrawLayer(DruidBarKey.bgstrata);
-end
-
-function UIErrorsFrame:realEcho()
-end
-
-function UIErrorsFrame:fakeEcho(str, a1, a2, a3, a4, a5, a6)
-  --DruidBar_Print(str, a1, a2, a3)
-  --The outdoors message is normally delayed by lag so that it doesn't actually come until after the function is re-enabled.  However, on occasion when the latency is very low and the interface lags, it will come while the function is still disabled.  Allow the message through if this is the case.
-  if(str == "Can only use outside") then
-      UIErrorsFrame:realEcho(str, a1, a2, a3, a4, a5, a6)
-  end
-end
-
---[[              Shapeshifting Code                    ]]--
---Thanks to mib for this code! it's awesome!
---also thanks to Zevzabich for a bit of help since the pure rapeage of both my character and my lua that is know as 0.10
-function DruidBar_ChangeBestForm()
-	local m_bag = -1;
-	local m_pos = -1;
-	local aq_bag = -1;
-	local aq_pos = -1;
-	-- search position of mount
-	for bag = 0,4 do
-		for i = 1,GetContainerNumSlots(bag) do
-			local t = GetContainerItemInfo(bag, i)
-			if (t) then
-				if (strfind(t,"\Ability_Mount_")) then
-					m_bag = bag;
-					m_pos = i;
-				end
-				if strfind(t, "\INV_Misc_Horn_01") and strfind(strlower(GetContainerItemLink(bag,i)), "frostwolf") then
-					m_bag = bag;
-					m_pos = i;
-				end
-				if (strfind(t, "INV_Misc_QirajiCrystal")) then
-					aq_bag = bag;
-					aq_pos = i;
-				end
-			end
-		end
-	end
-	local _, pqrs = UnitClass("player");
-	if pqrs == "DRUID" then
-		--first hide the error messages
-		--we try to do all 3 at once!
-
-		UIErrorsFrame.realEcho = UIErrorsFrame.AddMessage;
-		UIErrorsFrame.AddMessage = UIErrorsFrame.fakeEcho;
-		if (m_bag > -1 and m_pos > -1) or (aq_bag > -1 and aq_pos > -1) then
-			if strfind(GetRealZoneText(), DRUIDBAR_AQ1) and not strfind(GetRealZoneText(), DRUIDBAR_AQ2) and not strfind(GetRealZoneText(), DRUIDBAR_AQ3) then
-					UseContainerItem(aq_bag, aq_pos);
-				else
-					UseContainerItem(m_bag, m_pos);
-				end
-		end
-		ShapeshiftBar_ChangeForm(travelformid);
-		ShapeshiftBar_ChangeForm(aquaformid);
-		--then we allow error messages again
-		UIErrorsFrame.AddMessage = UIErrorsFrame.realEcho;
-	else
-		local i = 1;
-		--check for high-speed castable mounts.
-		while true do
-			local spellName = GetSpellName(i, BOOKTYPE_SPELL);
-			if not spellName then
-				do break end
-			end
-			if spellName == DRUIDBAR_CHARGER or spellName == DRUIDBAR_DREAD then
-				CastSpell(i, BOOKTYPE_SPELL);
-				return;
-			end
-			i = i + 1;
-		end
-		i = 1;
-		--check for lv40 castable mounts, or ghost wolf.
-		while true do
-			local spellName = GetSpellName(i, BOOKTYPE_SPELL);
-			if not spellName then
-				do break end
-			end
-			if spellName == DRUIDBAR_FEL or spellName == DRUIDBAR_GHOST or spellName == DRUIDBAR_WAR then
-				CastSpell(i, BOOKTYPE_SPELL);
-				return;
-			end
-			i = i + 1;
-		end
-		--nothing yet? let's try to mount normally.
-		UIErrorsFrame.realEcho = UIErrorsFrame.AddMessage;
-		UIErrorsFrame.AddMessage = UIErrorsFrame.fakeEcho;
-		--and trying...
-		if (m_bag > -1 and m_pos > -1) or (aq_bag > -1 and aq_pos > -1) then
-			if strfind(GetRealZoneText(), DRUIDBAR_AQ1) and not strfind(GetRealZoneText(), DRUIDBAR_AQ2) and not strfind(GetRealZoneText(), DRUIDBAR_AQ3) then
-					UseContainerItem(aq_bag, aq_pos);
-				else
-					UseContainerItem(m_bag, m_pos);
-				end
-		end
-		--then we allow error messages again
-		UIErrorsFrame.AddMessage = UIErrorsFrame.realEcho;
-	end
 end

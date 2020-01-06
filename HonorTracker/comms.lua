@@ -139,7 +139,7 @@ function Comms:SendMessage(type, data)
 end
 
 -- Handle compressing and decompressing player data
-function Comms:SerializePlayerData(data)
+function Comms:SerializePlayerData(data, metadata)
     local serialized = {
         SERIALIZE_VERSION_FORMAT, -- 1
         data.class, -- 2
@@ -150,7 +150,8 @@ function Comms:SerializePlayerData(data)
         data.thisWeek.honor, -- 7
         data.thisWeek.kills, -- 8
         data.lastWeek.standing, -- 9
-        data.lastWeek.honor -- 10
+        data.lastWeek.honor, -- 10
+        metadata.sourcedFromSender == true and "true" or metadata.sourcedFromSender == false and "false" or "nil", -- 11
     }
 
     return table.concat(serialized, "/")
@@ -171,6 +172,9 @@ function Comms:DeserializePlayerData(msg)
         lastWeek = {
             standing = tonumber(raw[9]),
             honor = tonumber(raw[10]),
+        },
+        metadata = {
+            sourcedFromSender = raw[11] == "true" and true or raw[11] == "false" and false or nil
         }
     }
 
@@ -185,8 +189,12 @@ function Comms:DeserializePlayerData(msg)
     return data
 end
 
-function Comms:SendPrivatePlayerData(requester, name, data)
-    self:SendPrivateMessage(requester, "push", {name, self:SerializePlayerData(data)})
+function Comms:SendPrivatePlayerData(sender, name)
+    self:SendPrivateMessage(
+        sender,
+        "push",
+        {name, self:SerializePlayerData(self.realmBracketDB.players[name], self.realmBracketDB.playersMeta[name])}
+    )
 end
 
 function Comms:SendPlayerData(name)
@@ -198,7 +206,7 @@ function Comms:SendPlayerData(name)
     metadata.lastSent = GetServerTime()
 
     self:Debug(2, "Sending updated data on %s, RP = %d, HK = %d, Honor = %d", name, data.rankPoints, data.thisWeek.kills, data.thisWeek.honor)
-    self:SendMessage("push", {name, self:SerializePlayerData(data)})
+    self:SendMessage("push", {name, self:SerializePlayerData(data, metadata)})
 end
 
 local eventFrame = CreateFrame("Frame")
