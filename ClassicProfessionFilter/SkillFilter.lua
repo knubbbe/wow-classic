@@ -22,15 +22,23 @@ local previousTradeSkillName = nil
 ---------------------------------------------
 -- UTILITIES
 ---------------------------------------------
-function trim(str)
+local function trim(str)
    return (str:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local function searchFilterMatches(searchFilter, header, item)
+    return (header and CPF:strmatch(header:lower(), searchFilter)) or CPF:strmatch(item:lower(), searchFilter)
+end
+
+local function haveMatsFilterMatches(haveMatsFilter, numAvailable)
+    return not haveMatsFilter or ( haveMatsFilter and numAvailable > 0 )
 end
 
 
 ---------------------------------------------
 -- SEARCH BAR
 ---------------------------------------------
-local function applyFilter(filter)
+local function applyFilter(searchFilter, haveMatsFilter)
     local filtered = {}
     local currentHeader = nil
     local currentHeaderIncluded = false
@@ -38,17 +46,17 @@ local function applyFilter(filter)
     local firstNonHeaderIndexIncluded = 0 -- used to identify the index of the top of the list
 
     for i = 1, GetNumTradeSkills(), 1 do
-        local skillName, skillType = GetTradeSkillInfo(i)
+        local skillName, skillType, numAvailable = GetTradeSkillInfo(i)
         if ( skillType == "header" ) then
             currentHeader = {i, GetTradeSkillInfo(i)}
             currentHeaderIncluded = false
             -- add header if it matches filter
-            if ( CPF:strmatch(currentHeader[2]:lower(), filter) ) then
+            if ( not haveMatsFilter and CPF:strmatch(currentHeader[2]:lower(), searchFilter) ) then
                 tinsert(filtered, currentHeader)
                 currentHeaderIncluded = true
             end
-        elseif ( ( currentHeader and CPF:strmatch(currentHeader[2]:lower(), filter) )
-                    or CPF:strmatch(skillName:lower(), filter) ) then
+        elseif ( searchFilterMatches(searchFilter, currentHeader and currentHeader[2] or nil, skillName)
+                and haveMatsFilterMatches(haveMatsFilter, numAvailable) ) then
             -- add header if it wasn't already added (can't add a skill without its header)
             if ( not currentHeaderIncluded ) then
                 tinsert(filtered, currentHeader)
@@ -81,10 +89,11 @@ local function showFilteredSkills()
     TradeSkillSubClassDropDown:Hide()
 
     -- Get the current list of filtered skills
-    local filter = trim(TradeSkillFrame.SearchBox:GetText():lower())
-    local isFiltering = filter ~= ""
+    local searchFilter = trim(TradeSkillFrame.SearchBox:GetText():lower())
+    local haveMatsFilter = TradeSkillFrame.HaveMats:GetChecked()
+    local isFiltering = searchFilter ~= "" or haveMatsFilter
 
-    local skills = applyFilter(filter)
+    local skills = applyFilter(searchFilter, haveMatsFilter)
 
     -- Display the filtered skill buttons
     local numTradeSkills = #skills
@@ -208,11 +217,17 @@ end
 
 local function expandAllHeadersWhenFiltering()
     local filter = trim(TradeSkillFrame.SearchBox:GetText():lower())
-    local isFiltering = filter ~= ""
+    local isFiltering = filter ~= "" or TradeSkillFrame.HaveMats:GetChecked()
 
     if ( isFiltering ) then
         ExpandTradeSkillSubClass(0) -- expand all
     end
+end
+
+local function resetFilter()
+    TradeSkillFrame.SearchBox:SetText("")
+    TradeSkillFrame.SearchBox:ClearFocus()
+    TradeSkillFrame.HaveMats:SetChecked(false)
 end
 
 local function resetFilterOnTradeSkillChange()
@@ -221,7 +236,7 @@ local function resetFilterOnTradeSkillChange()
     end
     if ( previousTradeSkillName ~= GetTradeSkillLine() ) then
         previousTradeSkillName = GetTradeSkillLine();
-        TradeSkillFrame.SearchBox:SetText("")
+        resetFilter()
     end
 end
 
@@ -236,16 +251,28 @@ CPF.RegisterCallback(MODULE_NAME, "initialize", function()
         TradeSkillFrame.SearchBox:SetPoint("BOTTOMRIGHT", TradeSkillListScrollFrame, "TOPRIGHT", 23, 3)
         TradeSkillFrame.SearchBox:Show()
 
+        -- Create have mats checkbox
+        TradeSkillFrame.HaveMats = CreateFrame("CheckButton", nil, TradeSkillFrame, "ClassicProfessionFilterCheckButtonTemplate")
+        TradeSkillFrame.HaveMats:SetPoint("BOTTOMLEFT", TradeSkillFrame.SearchBox, "TOPLEFT", 0, -3)
+        TradeSkillFrame.HaveMats.text:SetText(CRAFT_IS_MAKEABLE)
+        TradeSkillFrame.HaveMats.tooltipText = CRAFT_IS_MAKEABLE_TOOLTIP
+        TradeSkillFrame.HaveMats:Show()
+
+        -- Reset filter when closing window
+        TradeSkillFrame:HookScript("OnHide", resetFilter)
+
         -- Reset filter when change to new skill without closing window
         CPF.RegisterEvent(MODULE_NAME, "TRADE_SKILL_UPDATE", resetFilterOnTradeSkillChange)
 
         -- Hook displaying to use filters
         hooksecurefunc("TradeSkillFrame_Update", showFilteredSkills)
 
-        -- Expand all headers when we start filtering
+        -- Expand all headers on filter change
         TradeSkillFrame.SearchBox:HookScript("OnTextChanged", expandAllHeadersWhenFiltering)
+        TradeSkillFrame.HaveMats:HookScript("OnClick", expandAllHeadersWhenFiltering)
 
-        -- Apply filter OnTextChanged
+        -- Apply filter on filter change
         TradeSkillFrame.SearchBox:HookScript("OnTextChanged", showFilteredSkills)
+        TradeSkillFrame.HaveMats:HookScript("OnClick", showFilteredSkills)
     end)
 end)

@@ -206,7 +206,7 @@ function BracketUI:UpdateTable()
 
             -- 2, 7, 19, 34, 58, 97, 154, 221, 318, 424, 550, 678, 822, 973
             for bracket=14, 1, -1 do
-                local size = bracketSizes[bracket]
+                local size = bracketSizes[bracket] - (bracketSizes[bracket + 1] or 0)
                 if( size > 0 ) then
                     table.insert(sortedTableRows, shift, {bracket, size})
                     shift = shift + size + 1

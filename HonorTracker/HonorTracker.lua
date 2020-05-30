@@ -100,6 +100,8 @@ function HonorTracker:CheckDB()
 	self.globalDB.brackets[GetRealmName()] = self.globalDB.brackets[GetRealmName()] or {}
 	self.realmBracketDB = self.globalDB.brackets[GetRealmName()]
 
+	self.globalDB.brackets[GetRealmName()].lastWeek = self.globalDB.brackets[GetRealmName()].lastWeek or {}
+
 	self.globalDB.brackets[GetRealmName()].players = self.globalDB.brackets[GetRealmName()].players or {}
 	self.globalDB.brackets[GetRealmName()].playersMeta = self.globalDB.brackets[GetRealmName()].playersMeta or {}
 	self.globalDB.brackets[GetRealmName()].senderBlacklist = self.globalDB.brackets[GetRealmName()].senderBlacklist or {}
@@ -115,8 +117,9 @@ function HonorTracker:CheckDB()
 	
 	self.db.stateTags = self.db.stateTags or {}
 
-	if( not self.db.resetTime ) then
-		local ResetTime = self:GetModule("ResetTime")
+	-- Save initial reset time or force a new version in cases where we're fixing bugs
+	local ResetTime = self:GetModule("ResetTime")
+	if( not self.db.resetTime or self.db.resetTime.version ~= ResetTime.VERSION ) then
 		local dailyStart, dailyEnd = ResetTime:DailyWindow(true)
 		local weeklyStart, weeklyEnd = ResetTime:WeeklyWindow(true)
 
@@ -124,7 +127,8 @@ function HonorTracker:CheckDB()
 			dailyStart = dailyStart,
 			dailyEnd = dailyEnd,
 			weeklyStart = weeklyStart,
-			weeklyEnd = weeklyEnd
+			weeklyEnd = weeklyEnd,
+			version = ResetTime.VERSION
 		}
 	end
 

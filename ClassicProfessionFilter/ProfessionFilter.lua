@@ -10,10 +10,6 @@ print(CPF.ADDON_NAME, MODULE_NAME)
 -- MIXIN: SearchBar
 ---------------------------------------------
 ClassicProfessionFilterSearchBoxMixIn = {}
-function ClassicProfessionFilterSearchBoxMixIn:OnHide()
-    self:SetText("") -- clear filter
-end
-
 function ClassicProfessionFilterSearchBoxMixIn:OnTextChanged(...)
     SearchBoxTemplate_OnTextChanged(self, ...);
 end
@@ -26,4 +22,28 @@ end
 function ClassicProfessionFilterSearchBoxMixIn:OnEscapePressed(...)
     self:SetText("") -- clear filter
     self:ClearFocus()
+end
+
+
+---------------------------------------------
+-- MIXIN: HaveMats
+---------------------------------------------
+ClassicProfessionFilterCheckButtonMixIn = {}
+function ClassicProfessionFilterCheckButtonMixIn:OnClick()
+    if ( self:GetChecked() ) then
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON, "SFX")
+    else
+        PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF, "SFX")
+    end
+end
+
+function ClassicProfessionFilterCheckButtonMixIn:OnEnter()
+    if ( self.tooltipText ) then
+        GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+        GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true);
+    end
+end
+
+function ClassicProfessionFilterCheckButtonMixIn:OnLeave()
+    GameTooltip:Hide();
 end

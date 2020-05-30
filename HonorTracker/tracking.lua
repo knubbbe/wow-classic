@@ -225,7 +225,7 @@ end
 
 function Tracking:CheckForResetWarning()
 	-- Don't bother warning if there was no PVPing done
-	if( GetPVPThisWeekStats() == 0 and GetPVPLastWeekStats() == 0 ) then
+	if( GetPVPThisWeekStats() == 0 or GetPVPSessionStats() == 0 ) then
 		return
 	-- Already bugged people
 	elseif( self.db.resetTime.warnedToday ) then

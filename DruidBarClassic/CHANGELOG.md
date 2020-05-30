@@ -1,5 +1,21 @@
 ## Version History
 
+#### 0.7.7
+Fix text on mouseover.
+Change text when setting `replace` is selected.
+
+#### 0.7.6
+Finaly resolve `bar reset on lock` issue :D
+
+#### 0.7.5
+Add event so when stats change the bar updates (think buffs or gear swap).
+Add refresh to minimap icon on addon load so it uses stored position from last session.
+Internally rename width and height variables for readability (code only).
+Update 'blizz-like' display to more closely match blizlike.
+
+#### 0.7.4
+Fix bug with minimap icon load.
+
 #### 0.7.3
 Update WoW version compatability to `1.13.3`.
 Fix on draggable bug.

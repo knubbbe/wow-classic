@@ -99,6 +99,19 @@ containerFrame:SetScript("OnShow", function() Config:Show() end)
 containerFrame:Hide()
 InterfaceOptions_AddCategory(containerFrame)
 
+local currentRegionText
+if( GetCurrentRegion() == 1 ) then
+	currentRegionText = L["US, Brazil, and Oceania"]
+elseif( GetCurrentRegion() == 2 ) then
+	currentRegionText = L["Korea"]
+elseif( GetCurrentRegion() == 3 ) then
+	currentRegionText = L["Europe and Russia"]
+elseif( GetCurrentRegion() == 4 ) then
+	currentRegionText = L["Taiwan"]
+elseif( GetCurrentRegion() == 5 ) then
+	currentRegionText = L["China"]
+end
+
 -- Create the options menu child frames
 options = {
 	type = "group",
@@ -180,8 +193,55 @@ options = {
 						},
 					},
 				},
-				timing = {
+				override = {
 					order = 1,
+					type = "group",
+					inline = true,
+					name = L["Region Override"],
+					args = {
+						help1 = {
+							order = 0,
+							type = "description",
+							name = L["In some scenarios, the client region will be incorrect. You can override the region we use to calculate reset times, which will ensure you don't have premature resets."]
+						},
+						help2 = {
+							order = 0.5,
+							type = "description",
+							name = "",
+						},
+						override = {
+							order = 1,
+							type = "select",
+							name = "",
+							values = {
+								[""] = string.format(L["Client Default (%s)"], currentRegionText),
+								[1] = L["US, Brazil, and Oceania"],
+								[2] = L["Korea"],
+								[3] = L["Europe and Russia"],
+								[4] = L["Taiwan"],
+								[5] = L["China"],
+							},
+							set = function(info, value)
+								HonorTracker.db.config.regionOverride = tonumber(value)
+
+								local dailyStart, dailyEnd = ResetTime:DailyWindow(true)
+								local weeklyStart, weeklyEnd = ResetTime:WeeklyWindow(true)
+								HonorTracker.db.resetTime = {
+									dailyStart = dailyStart,
+									dailyEnd = dailyEnd,
+									weeklyStart = weeklyStart,
+									weeklyEnd = weeklyEnd,
+									version = ResetTime.VERSION
+								}
+							end,
+							get = function()
+								return HonorTracker.db.config.regionOverride or ""
+							end,
+						}
+					},
+				},
+				timing = {
+					order = 2,
 					type = "group",
 					inline = true,
 					name = L["Reset Window"],
@@ -200,7 +260,7 @@ options = {
 						help = {
 							order = 1,
 							type = "description",
-							name = string.format(L["If the values for the above are not correct, please let us know on CurseForge and give your region ID of '%d'."], GetCurrentRegion())
+							name = string.format(L["If the values for the above are not correct, please let us know on CurseForge and give your region ID of '%d'."], ResetTime:GetCurrentRegion())
 						}
 					},
 				},

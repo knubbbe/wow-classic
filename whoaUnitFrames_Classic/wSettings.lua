@@ -2,19 +2,19 @@ whoa = {}
 cfg = {}
 
 function whoaSetDefaults()
-	if (cfg.smallAuraSize == nil)	then cfg.smallAuraSize = 20;	end
-	if (cfg.largeAuraSize == nil)	then cfg.largeAuraSize = 25;	end
-	if (cfg.classColor == nil)		then cfg.classColor = true; end
-	if (cfg.reactionColor == nil)	then cfg.reactionColor = true; end
-	if (cfg.BlizzardReactionColor == nil) then cfg.BlizzardReactionColor = false; end
-	if (cfg.noClickFrame == nil)	then cfg.noClickFrame = false;	end
-	if (cfg.blueShaman == nil)		then cfg.blueShaman = true; end		-- blueShamans
-	if (cfg.usePartyFrames == nil)	then cfg.usePartyFrames = false;	end
-	if (cfg.styleFont == nil)		then cfg.styleFont = true; end
-	if (cfg.bigAuras == nil)		then cfg.bigAuras = true; end
-	if (cfg.useBossFrames == nil)	then cfg.useBossFrames = false; end
-	if (cfg.whoaTexture == nil)		then cfg.whoaTexture = true; end
-	if (cfg.darkFrames == nil)		then cfg.darkFrames = false;	end
+	if (cfg.smallAuraSize == nil)			then cfg.smallAuraSize = 20;	end
+	if (cfg.largeAuraSize == nil)			then cfg.largeAuraSize = 25;	end
+	if (cfg.classColor == nil)				then cfg.classColor = true; end
+	if (cfg.reactionColor == nil)			then cfg.reactionColor = true; end
+	if (cfg.BlizzardReactionColor == nil)	then cfg.BlizzardReactionColor = false; end
+	if (cfg.noClickFrame == nil)			then cfg.noClickFrame = false;	end
+	if (cfg.blueShaman == nil)				then cfg.blueShaman = true; end		-- blueShamans
+	if (cfg.usePartyFrames == nil)			then cfg.usePartyFrames = false;	end
+	if (cfg.styleFont == nil)				then cfg.styleFont = true; end
+	if (cfg.bigAuras == nil)				then cfg.bigAuras = true; end
+	if (cfg.useBossFrames == nil)			then cfg.useBossFrames = false; end
+	if (cfg.whoaTexture == nil)				then cfg.whoaTexture = true; end
+	if (cfg.darkFrames == nil)				then cfg.darkFrames = false;	end
 end
 whoaSetDefaults();
 
@@ -44,7 +44,7 @@ whoaUI.panel = CreateFrame( "Frame", "whoaUI", UIParent );
 whoaUI.panel.name = "whoa UnitFrames";
 InterfaceOptions_AddCategory(whoaUI.panel);
 
-local title = whoa:CreateFont(whoaUI.panel, "title", "whoa UnitFrames v1.3.3", 15, -18, font, 15)
+local title = whoa:CreateFont(whoaUI.panel, "title", "whoa UnitFrames v1.3.9", 15, -18, font, 15)
 title:SetFontObject(GameFontNormal) 
 title:SetPoint("LEFT",whoaUI.panel,"TOPLEFT",0,0)
 
@@ -221,48 +221,68 @@ function whoa:CreateUI(frame)
 	end)
 end
 
+local function defaults()
+	if ( cfg.classColor == true) 				then whoaCheckButton1:SetChecked(true)		end
+	if ( cfg.blueShamans == true ) 				then	whoaCheckButton2:SetChecked(true)	end
+	if ( cfg.reactionColor == true ) 			then whoaCheckButton3:SetChecked(true)		end
+	if ( cfg.BlizzardReactionColor == true ) 	then whoaCheckButton4:SetChecked(true)		end
+	if ( cfg.bigAuras == true) 					then	whoaCheckButton5:SetChecked(true)	end
+	if ( cfg.darkFrames == true) 				then whoaCheckButton6:SetChecked(true)		end
+	if ( cfg.styleFont == false) 				then whoaCheckButton7:SetChecked(true)		end
+	if ( cfg.whoaTexture == false)				then whoaCheckButton8:SetChecked(true)		end
+	if ( cfg.noClickFrame == true)				then	whoaCheckButton9:SetChecked(true)	end
+end
+
+
 SlashCmdList.whoaUI = function()
 	InterfaceOptionsFrame_OpenToCategory(whoaUI.panel)
 	InterfaceOptionsFrame_OpenToCategory(whoaUI.panel)
 end
-SLASH_whoaUI1 = "/whoa"
-SLASH_whoaUI1 = "/wuf"
-SLASH_whoaUI2 = "/whoa"
+SLASH_whoaUI1 = "/whoaUI"
+SLASH_whoaUI2 = "/wuf"
+SLASH_whoaUI3 = "/whoa"
+
 SlashCmdList['RELOAD'] = function() ReloadUI() end
-LASH_RELOAD1 = '/rl'
+SLASH_RELOAD1 = '/rl'
 
 whoa:CreateUI()
+
+local function checkPlayerDead()
+	local isDead = UnitIsDead("player");
+	local isGhost = UnitIsGhost("player");
+	
+	if isDead then
+		PlayerFrameDeadText:Show();
+		PlayerFrameGhostText:Hide();
+	elseif isGhost then
+		PlayerFrameDeadText:Hide();
+		PlayerFrameGhostText:Show();
+	else
+		PlayerFrameDeadText:Hide();
+		PlayerFrameGhostText:Hide();
+	end
+
+end
+local function checkTargetDead()
+	local isDead = UnitIsDead("Target");
+	local isGhost = UnitIsGhost("target");
+	local spiritHealer = (UnitName("target") == "Spirit Healer");
+	
+	if isGhost then
+		TargetFrameTextureFrameGhostText:Show();
+	elseif isGhost and spiritHealer then
+		TargetFrameTextureFrameGhostText:Hide();
+	else
+		TargetFrameTextureFrameGhostText:Hide();
+	end
+end
+
 --	Events
 function whoa:Init(event, addon, ...)
-	if (cfg.classColor == true) then
-		whoaCheckButton1:SetChecked(true)
-	end
-	if ( cfg.blueShamans == true ) then
-		whoaCheckButton2:SetChecked(true)
-	end
-	if ( cfg.reactionColor == true ) then
-		whoaCheckButton3:SetChecked(true)
-	end
-	if ( cfg.BlizzardReactionColor == true ) then
-		whoaCheckButton4:SetChecked(true)
-	end
-	if ( cfg.bigAuras == true) then
-		whoaCheckButton5:SetChecked(true)
-	end
-	if ( cfg.darkFrames == true) then
-		whoaCheckButton6:SetChecked(true)
-	end
-	if ( cfg.styleFont == false) then
-		whoaCheckButton7:SetChecked(true)
-	end
-	if ( cfg.whoaTexture == false) then
-		whoaCheckButton8:SetChecked(true)
-	end
-	if ( cfg.noClickFrame == true) then
-		whoaCheckButton9:SetChecked(true)
-	end
 	
 	if (event == "ADDON_LOADED" and addon == "whoaUnitFrames_Classic") then
+		blueShamans ()
+		defaults()
 		if rmhAddon then
 			print("|cff00ccff[whoa UnitFrames]:|cff00ff00 RealMobHealth detected.");
 		end
@@ -276,20 +296,51 @@ function whoa:Init(event, addon, ...)
 			print("|cff00ccff[whoa UnitFrames]:|cffffff00 Lorti-UI-Classic detected. |cffffffffMake sure to enable whoa´s dark frames with /wtf to match with LortiUI.");
 		end
 		print("|cff00ccff[whoa UnitFrames] |cffffffffis now |cff00ff00loaded. |cffffffffUse |cffffff00'/wuf' |cffffffff open options.")
-	end
-	
-	if (cfg.noClickFrame == true) then
-		if (event == "PLAYER_ENTERING_WORLD") then
-			print("entered world");
+		
+		--	luad unclickeable frames
+		if (cfg.noClickFrame == true) then
+			PlayerFrame:SetMouseClickEnabled(false);
+			PetFrame:SetMouseClickEnabled(false);
+			TargetFrame:SetMouseClickEnabled(false)
 		end
-		PlayerFrame:SetMouseClickEnabled(false);
-		PetFrame:SetMouseClickEnabled(false);
-		TargetFrame:SetMouseClickEnabled(false)
 	end
-	blueShamans();
+	if (event == "PLAYER_ENTERING_WORLD")  then
+		blueShamans ()
+		unitClassColors(healthbar, unit)
+		 npcReactionBrightColors()
+	end
+	if (event == "PLAYER_ENTERING_WORLD") or (event == "PLAYER_DEAD") or (event == "PLAYER_ALIVE") or (event == "PLAYER_UNGHOST") then
+		checkPlayerDead()
+	end
+	if (event == "PLAYER_TARGET_CHANGED") or (event == "PLAYER_ALIVE") or (event == "PLAYER_UNGHOST") then
+		checkTargetDead()
+	end
 end
+
 -- create addon frame
 local whoaUI = CreateFrame("Frame", "whoaUI", UIParent)
 whoaUI:SetScript("OnEvent", whoa.Init)
 whoaUI:RegisterEvent("ADDON_LOADED")
 whoaUI:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+whoaUI:RegisterEvent("PLAYER_DEAD")
+whoaUI:RegisterEvent("PLAYER_ALIVE")
+whoaUI:RegisterEvent("PLAYER_UNGHOST")
+whoaUI:RegisterEvent("PLAYER_TARGET_CHANGED")
+-- whoaUI:RegisterEvent("PLAYER_ENTERING_WORLD")
+-- whoaUI:RegisterEvent("PLAYER_ENTERING_WORLD")
+
+
+	-- Mouse wheel minimap zoom (not documented).
+Minimap:EnableMouseWheel(true)
+Minimap:SetScript("OnMouseWheel", function(mp, input)
+local zoom = Minimap:GetZoom()
+    if input > 0 and zoom < 5 then
+		mp:SetZoom(zoom +1)
+    elseif input < 0 and zoom > 0 then
+		mp:SetZoom(zoom -1)
+    end
+	C_Timer.After(10, function()
+		mp:SetZoom(0)
+	end)
+end)

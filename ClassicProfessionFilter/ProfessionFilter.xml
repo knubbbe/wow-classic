@@ -8,10 +8,23 @@
 			<AbsDimension x="200" y="22"/>
 		</Size>
 		<Scripts>
-			<OnHide method="OnHide" />
 			<OnTextChanged method="OnTextChanged" />
 			<OnChar method="OnChar" />
 			<OnEscapePressed method="OnEscapePressed" />
 		</Scripts>
 	</EditBox>
+
+	<CheckButton name="ClassicProfessionFilterCheckButtonTemplate" mixin="ClassicProfessionFilterCheckButtonMixIn" inherits="UICheckButtonTemplate" virtual="true">
+		<Size>
+			<AbsDimension x="20" y="20"/>
+		</Size>
+		<HitRectInsets>
+			<AbsInset left="0" right="-200" top="0" bottom="0"/>
+		</HitRectInsets>
+		<Scripts>
+			<OnClick method="OnClick" />
+			<OnEnter method="OnEnter" />
+			<OnLeave method="OnLeave" />
+		</Scripts>
+	</CheckButton>
 </Ui>

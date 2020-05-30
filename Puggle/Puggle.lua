@@ -7,7 +7,7 @@
 ]]--
 
 
-local puglocal_version = "2.8"  --change here, and in TOC
+local puglocal_version = "2.9"  --change here, and in TOC
 local puglocal_reqPrefix = "Puggle;"
 local puglocal_dispFrequency = 5  -- display refresh every x seconds
 local puglocal_whoFrequency = 10  -- seconds before allowing another /who
@@ -372,9 +372,10 @@ function Puggle_OnEvent(event, ...)
 		Puggle_ProcessRandom(arg1, arg2)
 	end
 
-
+--[[
 	if event == "CHAT_MSG_PARTY" or event == "CHAT_MSG_PARTY_LEADER" then
 		-- checking guild and level of party members when there's chat going on
+		-- This seems to be causing micro-freeze whenever someone in chat is talking
 		for i=1, 4 do 
 			if UnitName("party"..i) ~= nil and UnitName("party"..i) ~= "Unknown" then 
 				--check if we already got this player's invariable meta
@@ -403,9 +404,9 @@ function Puggle_OnEvent(event, ...)
 				end
 			end
 		end
-
 	end
-	
+]]
+
 	if event == "CHAT_MSG_SYSTEM" then
 		--only look at results from /who
 		if string.find(arg1, " Level ") then

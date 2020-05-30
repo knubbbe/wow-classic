@@ -1,7 +1,7 @@
-## Interface: 11303
+## Interface: 11304
 ## Title: ClassicProfessionFilter
 ## Notes: Filter your profession window for specific patterns/recipes
-## Version: 1.0.1
+## Version: 1.0.4
 ## Author: Slainsvirtue-Mankrik
 ##
 ## LoadOnDemand: 0

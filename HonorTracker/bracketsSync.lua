@@ -109,7 +109,7 @@ function BracketsSync:BootstrapPingsTimedOut()
     self.timerFrame:SetScript("OnUpdate", function(self, elapsed)
         -- Immediately finish if we got a finished
         if( bootstrapFinished[bestCandidate] ) then
-            self:Debug(2, "Received finished bootstrapping indicator from %s", bestCandidate)
+            BracketsSync:Debug(2, "Received finished bootstrapping indicator from %s", bestCandidate)
             self.timeElapsed = 99999
         end
 

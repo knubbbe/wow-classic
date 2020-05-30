@@ -1,5 +1,19 @@
 local HonorTracker = select(2, ...)
 local ResetTime = HonorTracker:RegisterModule("ResetTime")
+ResetTime.VERSION = 4
+
+function ResetTime:FixHourRounding(seconds)
+	local parts = date("*t", seconds)
+	-- Hour is off by one and we need to shift it forward (e.g we're 07:59:59 and need to be 08:00:00)
+	if( parts.sec >= 50 ) then
+		return seconds + (60 - parts.sec)
+	-- Hour is correct, we need to shift the seconds to zero (e.g. we're 08:00:01 and need to be 08:00:00)
+	elseif( parts.sec <= 10 ) then
+		return seconds - parts.sec
+	end
+
+	return seconds
+end
 
 function ResetTime:GetUTCTime(override, value)
 	local utcParts = date("!*t")
@@ -49,12 +63,23 @@ function ResetTime:ProperDayOfWeek(utcTime)
 	end
 end
 
+function ResetTime:GetCurrentRegion()
+	if( HonorTrackerDB and HonorTrackerDB.config and HonorTrackerDB.config.regionOverride ) then
+		return HonorTrackerDB.config.regionOverride
+	end
+	
+	return GetCurrentRegion()
+end
+
 -- For the purposes of this function, Monday is wday=1 and Sunday is wday=7
 function ResetTime:WeeklyWindow(withServerTime)
 	local maintenanceDay
 	-- United States, Oceania and Brazil are all on Tuesday
-	if( GetCurrentRegion() == 1 ) then
+	if( self:GetCurrentRegion() == 1 ) then
 		maintenanceDay = 2 -- Tuesday
+	-- China
+	elseif( self:GetCurrentRegion() == 5 ) then
+		maintenanceDay = 1 -- Monday
 	else
 		maintenanceDay = 3 -- Wednesday
 	end
@@ -91,28 +116,32 @@ function ResetTime:WeeklyWindow(withServerTime)
 		timeOffset = (GetServerTime() - time(date("!*t")))
 	end
 
-	return utcStart + timeOffset, utcEnd + timeOffset
+	utcStart = self:FixHourRounding(utcStart + timeOffset)
+	utcEnd = self:FixHourRounding(utcEnd + timeOffset)
+
+	return utcStart, utcEnd
 end
 
 function ResetTime:DailyWindow(withServerTime)
 	-- Default to US
+	-- Note all of these times are UTC, so 16 UTC is 8 AM PST
 	local resetHour = 16
 
 	-- United States, Oceania, Brazil
-	if( GetCurrentRegion() == 1 ) then
+	if( self:GetCurrentRegion() == 1 ) then
 		resetHour = 16
 	-- Europe, Russia
-	elseif( GetCurrentRegion() == 3 ) then
+	elseif( self:GetCurrentRegion() == 3 ) then
 		resetHour = 7
 	-- China
-	elseif( GetCurrentRegion() == 5 ) then 
+	elseif( self:GetCurrentRegion() == 5 ) then 
 		resetHour = 8
 	-- Korea
-	elseif( GetCurrentRegion() == 2 ) then 
+	elseif( self:GetCurrentRegion() == 2 ) then 
 		-- Guessing off of China
 		resetHour = 9
 	-- Taiwan
-	elseif( GetCurrentRegion() == 4 ) then
+	elseif( self:GetCurrentRegion() == 4 ) then
 		-- Guessing off of China
 		resetHour = 8
 	end
@@ -127,7 +156,7 @@ function ResetTime:DailyWindow(withServerTime)
 
 	-- Meaning if utcNow is less than utcReset, then utcReset is the end time and we subtract 24 hours
 	-- to get the start
-	if( utcNow <= utcReset ) then
+	if( utcNow < utcReset ) then
 		utcStart = utcReset - 86400
 		utcEnd = utcReset
 	-- while if utcNow is greater than utcReset, then we flip that
@@ -141,5 +170,8 @@ function ResetTime:DailyWindow(withServerTime)
 		timeOffset = (GetServerTime() - time(date("!*t")))
 	end
 
-	return utcStart + timeOffset, utcEnd + timeOffset
+	utcStart = self:FixHourRounding(utcStart + timeOffset)
+	utcEnd = self:FixHourRounding(utcEnd + timeOffset)
+
+	return utcStart, utcEnd
 end

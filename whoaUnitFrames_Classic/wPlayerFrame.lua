@@ -1,34 +1,27 @@
+-- local ghostText = "Ghost";	-- for manual localization of word when you are dead and in ghost shape.
+-- local deadText = DEAD;
+
 --	Player frame.
 local function wPlayerFrame(self)
 	local isDead = UnitIsDead("player");
 	if (cfg.whoaTexture == true) then
 		self.healthbar:SetStatusBarTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\statusbar\\whoa");
 	end
-	if isDead then 
-		self.healthbar.RightText:SetText("");
-		self.healthbar.LeftText:SetText("");
-	end
 	PlayerStatusTexture:ClearAllPoints();
 	PlayerStatusTexture:SetPoint("CENTER", PlayerFrame, "CENTER",16, 8);
 	PlayerFrameBackground:SetWidth(120);
 	self.name:Hide();
-	self.name:ClearAllPoints();
 	self.name:SetPoint("CENTER", PlayerFrame, "CENTER",50.5, 36);
 	self.healthbar:SetPoint("TOPLEFT",108,-24);
 	self.healthbar:SetHeight(18);
 	self.manabar:SetPoint("TOPLEFT",108,-45);
 	self.manabar:SetHeight(18);
-	self.healthbar.LeftText:ClearAllPoints();
 	self.healthbar.LeftText:SetPoint("LEFT",self.healthbar,"LEFT",5,0);	
-	self.healthbar.RightText:ClearAllPoints();
-	self.healthbar.RightText:SetPoint("RIGHT",self.healthbar,"RIGHT",-5,0);
+	self.healthbar.RightText:SetPoint("RIGHT",self.healthbar,"RIGHT",-3,0);
 	self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 0);
-	self.manabar.LeftText:ClearAllPoints();
 	self.manabar.LeftText:SetPoint("LEFT",self.manabar,"LEFT",5,0);
-	self.manabar.RightText:ClearAllPoints();
-	self.manabar.RightText:SetPoint("RIGHT",self.manabar,"RIGHT",-5,0);
+	self.manabar.RightText:SetPoint("RIGHT",self.manabar,"RIGHT",-3,0);
 	self.manabar.TextString:SetPoint("CENTER",self.manabar,"CENTER",0,0);
-	PlayerFrameGroupIndicatorText:ClearAllPoints();
 	PlayerFrameGroupIndicatorText:SetPoint("BOTTOMLEFT", PlayerFrame,"TOP",0,-20);
 	PlayerFrameGroupIndicatorLeft:Hide();
 	PlayerFrameGroupIndicatorMiddle:Hide();
@@ -54,7 +47,7 @@ local function playerFontStyle(self)
 		self.healthbar.RightText:SetFontObject(SystemFont_Outline_Small);
 		self.manabar.LeftText:SetFontObject(SystemFont_Outline_Small);
 		self.manabar.RightText:SetFontObject(SystemFont_Outline_Small);
-		-- self.healthbar.TextString:SetFontObject(SystemFont_Outline_Small);
+		self.healthbar.TextString:SetFontObject(SystemFont_Outline_Small);
 		self.manabar.TextString:SetFontObject(SystemFont_Outline_Small);
 	end
 end

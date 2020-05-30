@@ -1,88 +1,34 @@
-lightweight tag 9c82ce7720855b44dab6216cb1bd06ef3ebdf299 0.7.3
+lightweight tag ff7f0745ca71690c424d9cfc5a0ac14a20819da6 0.7.7
 Author:	GitHub <noreply@github.com>
-Date:	Mon Jan 6 07:24:45 2020 -0800
+Date:	Mon Jan 13 07:50:30 2020 -0800
 
-commit 0d01ff05d8d55efd8cda19d24a85e581ce519ada
+commit a3550d46fea7a19fde64e77be0156c12467af60e
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 07:23:37 2020 -0800
+Date:   Sat Jan 11 16:50:13 2020 -0800
 
-    Remove accidently added file
+    update version
 
-commit 0d01ff05d8d55efd8cda19d24a85e581ce519ada
+commit a3550d46fea7a19fde64e77be0156c12467af60e
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 07:23:37 2020 -0800
+Date:   Sat Jan 11 16:50:13 2020 -0800
 
-    Remove accidently added file
+    update version
 
-commit 9f62a0a4bcf156964b2f1d9f6be7c7fdef76076f
+commit 834f7ea9889d7147e82946f086c4b6f96c87dc88
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 07:15:58 2020 -0800
+Date:   Sat Jan 11 16:43:47 2020 -0800
 
-    Update CHANGELOG
+    Add missing parens
 
-commit b179cee3efc63e4221903889ecce7c9d656b0245
+commit 077254f5b1efb94ba634026201eab6f854ea7203
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 07:07:30 2020 -0800
+Date:   Fri Jan 10 18:21:38 2020 -0800
 
-    Move the creation of minimap button so it loads position from DruidBarKey
+    Fix replace text garbage, stage 1
 
-commit 81b56db30a25ff575da6524793a15aede4c813a5
+commit d170e3e73ff13de6d388ce139552cafcd4d70aa9
 Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 06:34:27 2020 -0800
+Date:   Fri Jan 10 17:30:26 2020 -0800
 
-    Initialize frame with movable so stored position can bet set on initial render
-
-commit c531ae958173aeeeb189a1c99562c33232983015
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 04:10:37 2020 -0800
-
-    Update CHANGELOG
-
-commit fbdeeacd324502d11703c9b34a1671da01c6ee11
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 04:08:11 2020 -0800
-
-    Fix draggable functionality
-
-commit c74bb7e05d3f463d7b7f670a654209ba7f2ad016
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 04:07:25 2020 -0800
-
-    Remove last references to Bestform
-
-commit 4a5754480e3a6f9b011efd55dbdd7779e96f6a3a
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 03:30:38 2020 -0800
-
-    Rename a couple functiuons for readability and add comments
-
-commit eb1a323f72440b80a5fed4b70b8a0a2a4acd0126
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 03:30:12 2020 -0800
-
-    Update addon version
-
-commit efcb259979c8f8bb0776c4241123f5ddb9a02e90
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Mon Jan 6 03:29:44 2020 -0800
-
-    Update wow version compatability
-
-commit d562ba5c0c11f22c85909fbb52d40c6a84cca24e
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Wed Oct 2 08:23:40 2019 -0700
-
-    Clean up the druid bar status method
-
-commit 4ceed98510c155621229d977fd327f1ecdeca395
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Wed Oct 2 08:22:55 2019 -0700
-
-    Remove unused method to obtain values of the cost of shapeshifting
-
-commit a377f4b8c91f9cb83041f821be4ee1bb123ca895
-Author: Tek Hudson <tek.hudson@gmail.com>
-Date:   Wed Oct 2 08:22:13 2019 -0700
-
-    Remove non-functional shapeshift code due to protected CastShapefiftForm method
+    Fix mouse over issue
 

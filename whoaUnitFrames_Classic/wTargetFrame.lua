@@ -1,23 +1,47 @@
+-- local ghostText = "Ghost";	-- for manual localization of word when you are dead and in ghost shape.
+-- local deadText = DEAD;
+
 --	Target frame
 local function targetFrame (self, forceNormalTexture)
 	local classification = UnitClassification(self.unit);
+	local isDead = UnitIsDead(self.unit);
+	local isGhost = UnitIsGhost(self.unit);
+	
+	if isDead or isGhost then
+		self.healthbar.LeftText:Hide();
+		self.healthbar.RightText:Hide();
+		self.healthbar.TextString:Hide();
+		self.manabar.LeftText:Hide();
+		self.manabar.RightText:Hide();
+		self.manabar.RightText:Hide();
+		self.manabar.TextString:Hide();
+	-- else
+		-- -- self.healthbar.TextString:Show();
+	end
+
 	self.highLevelTexture:ClearAllPoints();
 	self.highLevelTexture:SetPoint("CENTER", self.levelText, "CENTER", 1,0);
 	self.deadText:SetPoint("CENTER", self.healthbar, "CENTER",0,0);
 	self.unconsciousText:SetPoint("CENTER", self.manabar, "CENTER",0,0);
+	
+	if UnitIsCivilian(self.unit) then
+		self.name:SetTextColor(1.0,0,0);
+	else
+		self.name:SetTextColor(1.0,0.82,0,1);
+	end
 	self.nameBackground:Hide();
 	self.name:SetPoint("LEFT", self, 15, 36);
 	self.healthbar:SetSize(119, 18);
 	self.healthbar:SetPoint("TOPLEFT", 5, -24);
 	self.manabar:SetPoint("TOPLEFT", 5, -45);
 	self.manabar:SetSize(119, 18);
+	
 	if not mi2addon then
 		self.healthbar.LeftText:SetPoint("LEFT", self.healthbar, "LEFT", 5, 0);
-		self.healthbar.RightText:SetPoint("RIGHT", self.healthbar, "RIGHT", -3, 0);
+		self.healthbar.RightText:SetPoint("RIGHT", self.healthbar, "RIGHT", -5, 0);
 		self.healthbar.TextString:SetPoint("CENTER", self.healthbar, "CENTER", 0, 0);
 		self.manabar.LeftText:SetPoint("LEFT", self.manabar, "LEFT", 5, 0);	
-		self.manabar.RightText:ClearAllPoints();
-		self.manabar.RightText:SetPoint("RIGHT", self.manabar, "RIGHT", -3, 0);
+		self.manabar.RightText:SetPoint("RIGHT", self.manabar, "RIGHT", -5, 0);
 		self.manabar.TextString:SetPoint("CENTER", self.manabar, "CENTER", 0, 0);
 	end
 	if ( forceNormalTexture ) then
@@ -86,6 +110,33 @@ local function targetFrameSelector (self, forceNormalTexture)
 		self.borderTexture:SetTexture(path.."UI-TargetingFrame");
 		forceNormalTexture = true;
 	end
+	if ( self.showPVP ) then
+		local factionGroup = UnitFactionGroup(self.unit);
+		if ( UnitIsPVPFreeForAll(self.unit) ) then
+			if cfg.darkFrames then
+				self.pvpIcon:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\dark\\UI-PVP-FFA");
+			else
+				self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA");
+			end
+		elseif ( factionGroup and factionGroup ~= "Neutral" and UnitIsPVP(self.unit) ) then
+			if cfg.darkFrames then
+				self.pvpIcon:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\dark\\UI-PVP-"..factionGroup);
+			else
+				self.pvpIcon:SetTexture("Interface\\TargetingFrame\\UI-PVP-"..factionGroup);
+			end
+		end
+		
+		if (UnitIsCivilian(self.unit)) then
+			if cfg.darkFrames then
+				self.questIcon:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\dark\\PortraitWarningBadge");
+			else
+				self.questIcon:SetTexture("Interface\\Addons\\whoaUnitFrames_Classic\\media\\light\\PortraitWarningBadge");
+			end
+			self.questIcon:Show();
+		else
+			self.questIcon:Hide();
+		end
+	end
 end
 hooksecurefunc("TargetFrame_CheckClassification", targetFrameSelector)
 
@@ -119,7 +170,6 @@ hooksecurefunc("UnitFrameManaBar_UpdateType", manabarTexture)
 local function totFrame()
 	TargetFrameToTTextureFrameDeadText:ClearAllPoints();
 	TargetFrameToTTextureFrameDeadText:SetPoint("CENTER", "TargetFrameToTHealthBar","CENTER",1, 0);
-	TargetFrameToTTextureFrameName:SetSize(65,10);
 	TargetFrameToTHealthBar:ClearAllPoints();
 	TargetFrameToTHealthBar:SetPoint("TOPLEFT", 45, -15);
     TargetFrameToTHealthBar:SetHeight(10);

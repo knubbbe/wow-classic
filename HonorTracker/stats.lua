@@ -4,25 +4,25 @@ local L = HonorTracker.L
 
 -- Figure out how much actual honor we got from someone
 function Stats:CalculateModifiedHonor(name, honor)
-	if (not self.db.today.kills[name]) then
+	local killsLeft = 11 - (self.db.today.kills[name] and self.db.today.kills[name].kills or 0)
+	if( killsLeft >= 10 ) then
 		return honor
-	elseif (self.db.today.kills[name].kills == 1) then
-		return honor
-	elseif (self.db.today.kills[name].kills == 2) then
-		return math.floor((honor * 0.75) + 0.5)
-	elseif (self.db.today.kills[name].kills == 3) then
-		return math.floor((honor * 0.50) + 0.5)
-	elseif (self.db.today.kills[name].kills == 4) then
-		return math.floor((honor * 0.25) + 0.5)
-	else
+	elseif( killsLeft <= 0 ) then
 		return 0
 	end
+
+	local diminish = killsLeft * 0.1
+	return math.floor((honor * diminish) + 0.5)
 end
 
 -- Calculate their actual rank off of the points
 function Stats:RankPointsToRank(rankPoints)
-	if( rankPoints <= 2000 ) then
-		return string.format(L["Rank %d"], rankPoints)
+	if( rankPoints < 2000 ) then
+		local progress = rankPoints / 2000
+		return string.format(L["Rank %d (%d%% in)"], 1, math.floor(progress * 100))
+	elseif( rankPoints < 5000 ) then
+		local progress = (rankPoints - 2000) / 3000
+		return string.format(L["Rank %d (%d%% in)"], 2, math.floor(progress * 100))
 	elseif( rankPoints >= 60000 ) then
 		return string.format(L["Rank 14"])
 	end
@@ -46,6 +46,8 @@ function Stats:CalculateRankPoints(rank, rankProgress)
 		rankPoints = math.ceil(((rank - 2) * 5000) + (rankProgress * 5000))
 	elseif( rank == 2 ) then
 		rankPoints = math.ceil((rankProgress * 3000) + 2000)
+	elseif( rank == 1 ) then
+		rankPoints = math.ceil((rankProgress * 2000))
 	end
 
 	return rankPoints
@@ -54,6 +56,8 @@ end
 -- Show daily reset messages
 function Stats:OnDailyReset()
 	local actualHonor = select(3, GetPVPYesterdayStats())
+	-- Don't show anything if we didn't PVP
+	if( actualHonor == 0 ) then return end
 
 	local offBy
 	if( actualHonor > self.db.yesterday.honor.total ) then

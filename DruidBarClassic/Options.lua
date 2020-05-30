@@ -16,15 +16,15 @@ end
 function DRUIDBAROptions_Width(self)
 	if ( DRUIDBAROptionsWidthEditBox:GetText() < "1" ) then
 		DRUIDBAROptionsWidthEditBox:SetText("170");
-		DruidBarKey.xvar = self:GetNumber();
-		DruidBarKey.tempW = DruidBarKey.xvar;
+		DruidBarKey.width = self:GetNumber();
+		DruidBarKey.tempW = DruidBarKey.width;
 	elseif( DRUIDBAROptionsWidthEditBox:GetText() > "9999" ) then
 		DRUIDBAROptionsWidthEditBox:SetText("9999");
-		DruidBarKey.xvar = self:GetNumber();
-		DruidBarKey.tempW = DruidBarKey.xvar;
+		DruidBarKey.width = self:GetNumber();
+		DruidBarKey.tempW = DruidBarKey.width;
 	else
-		DruidBarKey.xvar = self:GetNumber();
-		DruidBarKey.tempW = DruidBarKey.xvar;
+		DruidBarKey.width = self:GetNumber();
+		DruidBarKey.tempW = DruidBarKey.width;
 	end
 end
 
@@ -32,15 +32,15 @@ end
 function DRUIDBAROptions_Height(self)
 	if ( DRUIDBAROptionsHeightEditBox:GetText() < "1" ) then
 		DRUIDBAROptionsHeightEditBox:SetText("18");
-		DruidBarKey.yvar = self:GetNumber();
-		DruidBarKey.tempH = DruidBarKey.yvar;
+		DruidBarKey.height = self:GetNumber();
+		DruidBarKey.tempH = DruidBarKey.height;
 	elseif( DRUIDBAROptionsHeightEditBox:GetText() > "999" ) then
 		DRUIDBAROptionsHeightEditBox:SetText("999");
-		DruidBarKey.yvar = self:GetNumber();
-		DruidBarKey.tempH = DruidBarKey.yvar;
+		DruidBarKey.height = self:GetNumber();
+		DruidBarKey.tempH = DruidBarKey.height;
 	else
-		DruidBarKey.yvar = self:GetNumber();
-		DruidBarKey.tempH = DruidBarKey.yvar;
+		DruidBarKey.height = self:GetNumber();
+		DruidBarKey.tempH = DruidBarKey.height;
 	end
 end
 
@@ -112,8 +112,8 @@ function DRUIDBAROptions_Player()
 	DruidBarKey.Player = true;
 	DruidBarKey.Custom = false;
 	--Assign value that default to match player frame
-	DruidBarKey.xvar = 125;
-	DruidBarKey.yvar = 18;
+	DruidBarKey.width = 125;
+	DruidBarKey.height = 18;
 	DruidBarKey.Lock = true;
 	renderOptionsFrame();
 end
@@ -124,8 +124,8 @@ function DRUIDBAROptions_Custom()
 	DruidBarKey.Replace = false;
 	DruidBarKey.Player = false;
 	DruidBarKey.Lock = false;
-	DruidBarKey.xvar = DruidBarKey.tempW;
-	DruidBarKey.yvar = DruidBarKey.tempH;
+	DruidBarKey.width = DruidBarKey.tempW;
+	DruidBarKey.height = DruidBarKey.tempH;
 	renderOptionsFrame();
 end
 
@@ -158,7 +158,7 @@ function DRUIDBAROptions_Text_OnShow()
 		UIDropDownMenu_SetSelectedID(DRUIDBAROptionsTextDropDown, 1);
 	elseif( DruidBarKey.Text == 1 ) then -- NEW
 		UIDropDownMenu_SetSelectedID(DRUIDBAROptionsTextDropDown, 2);
-	elseif( DruidBarKey.Text == nil ) then -- NO TEXT
+	elseif( DruidBarKey.Text == 2 ) then -- MOUSEOVER
 		UIDropDownMenu_SetSelectedID(DRUIDBAROptionsTextDropDown, 3);
 	end
 	UIDropDownMenu_SetWidth(DRUIDBAROptionsTextDropDown, 100);
@@ -173,7 +173,7 @@ function DRUIDBAROptions_Text_OnClick(self)
 	elseif(i == 2) then
 		DruidBarKey.Text = 1;
 	elseif(i == 3) then
-		DruidBarKey.Text = nil;
+		DruidBarKey.Text = 2;
 	end
 end
 

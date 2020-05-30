@@ -1,7 +1,7 @@
 ## Interface: 11303
 ## Title: Honor Tracker
 ## Description: Honor tracking with diminishing returns
-## Version: v3.2.4.1
+## Version: v3.2.7
 ## Author: Shadowed
 ## SavedVariablesPerCharacter: HonorTrackerDB
 ## SavedVariables: HonorTrackerGlobalDB

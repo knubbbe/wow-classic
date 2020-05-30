@@ -120,3 +120,6 @@ RELEASE NOTES:
 
  - 2.7
 	Fixed an issue where some LFG requests were not being picked up.
+
+ - 2.9	
+ 	Fixed an issue where micro freeze would happen on /party chat.

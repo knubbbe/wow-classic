@@ -22,15 +22,23 @@ local previousCraftName = nil
 ---------------------------------------------
 -- UTILITIES
 ---------------------------------------------
-function trim(str)
+local function trim(str)
    return (str:gsub("^%s*(.-)%s*$", "%1"))
+end
+
+local function searchFilterMatches(searchFilter, header, item)
+    return (header and CPF:strmatch(header:lower(), searchFilter)) or CPF:strmatch(item:lower(), searchFilter)
+end
+
+local function haveMatsFilterMatches(haveMatsFilter, numAvailable)
+    return not haveMatsFilter or ( haveMatsFilter and numAvailable > 0 )
 end
 
 
 ---------------------------------------------
 -- SEARCH BAR
 ---------------------------------------------
-local function applyFilter(filter)
+local function applyFilter(searchFilter, haveMatsFilter)
     local filtered = {}
     local currentHeader = nil
     local currentHeaderIncluded = false
@@ -38,17 +46,17 @@ local function applyFilter(filter)
     local firstNonHeaderIndexIncluded = 0 -- used to identify the index of the top of the list
 
     for i = 1, GetNumCrafts(), 1 do
-        local craftName, _, craftType = GetCraftInfo(i);
+        local craftName, _, craftType, numAvailable = GetCraftInfo(i);
         if ( craftType == "header" ) then
             currentHeader = {i, GetCraftInfo(i)}
             currentHeaderIncluded = false
             -- add header if it matches filter
-            if ( CPF:strmatch(currentHeader[2]:lower(), filter) ) then
+            if ( not haveMatsFilter and CPF:strmatch(currentHeader[2]:lower(), searchFilter) ) then
                 tinsert(filtered, currentHeader)
                 currentHeaderIncluded = true
             end
-        elseif ( ( currentHeader and CPF:strmatch(currentHeader[2]:lower(), filter) )
-                    or CPF:strmatch(craftName:lower(), filter) ) then
+        elseif ( searchFilterMatches(searchFilter, currentHeader and currentHeader[2] or nil, craftName)
+                and haveMatsFilterMatches(haveMatsFilter, numAvailable) ) then
             -- add header if it wasn't already added (can't add a skill without its header)
             if ( not currentHeaderIncluded ) then
                 tinsert(filtered, currentHeader)
@@ -77,10 +85,11 @@ local function showFilteredCrafts()
     end
 
     -- Get the current list of filtered crafts
-    local filter = trim(CraftFrame.SearchBox:GetText():lower())
-    local isFiltering = filter ~= ""
+    local searchFilter = trim(CraftFrame.SearchBox:GetText():lower())
+    local haveMatsFilter = CraftFrame.HaveMats:GetChecked()
+    local isFiltering = searchFilter ~= "" or haveMatsFilter
 
-    local crafts = applyFilter(filter)
+    local crafts = applyFilter(searchFilter, haveMatsFilter)
 
     -- Display the filtered crafts buttons
     SetPortraitTexture(CraftFramePortrait, "player");
@@ -276,11 +285,17 @@ end
 
 local function expandAllHeadersWhenFiltering()
     local filter = trim(CraftFrame.SearchBox:GetText():lower())
-    local isFiltering = filter ~= ""
+    local isFiltering = filter ~= "" or CraftFrame.HaveMats:GetChecked()
 
     if ( isFiltering ) then
         ExpandCraftSkillLine(0) -- expand all
     end
+end
+
+local function resetFilter()
+    CraftFrame.SearchBox:SetText("")
+    CraftFrame.SearchBox:ClearFocus()
+    CraftFrame.HaveMats:SetChecked(false)
 end
 
 local function resetFilterOnCraftChange()
@@ -289,7 +304,7 @@ local function resetFilterOnCraftChange()
     end
     if ( previousCraftName ~= GetCraftDisplaySkillLine() ) then
         previousCraftName = GetCraftDisplaySkillLine();
-        CraftFrame.SearchBox:SetText("")
+        resetFilter()
     end
 end
 
@@ -304,16 +319,28 @@ CPF.RegisterCallback(MODULE_NAME, "initialize", function()
         CraftFrame.SearchBox:SetPoint("BOTTOMRIGHT", CraftListScrollFrame, "TOPRIGHT", 23, 3)
         CraftFrame.SearchBox:Show()
 
+        -- Create have mats checkbox
+        CraftFrame.HaveMats = CreateFrame("CheckButton", nil, CraftFrame, "ClassicProfessionFilterCheckButtonTemplate")
+        CraftFrame.HaveMats:SetPoint("BOTTOMLEFT", CraftFrame.SearchBox, "TOPLEFT", 0, -3)
+        CraftFrame.HaveMats.text:SetText(CRAFT_IS_MAKEABLE)
+        CraftFrame.HaveMats.tooltipText = CRAFT_IS_MAKEABLE_TOOLTIP
+        CraftFrame.HaveMats:Show()
+
+        -- Reset filter when closing window
+        CraftFrame:HookScript("OnHide", resetFilter)
+
         -- Reset filter when change to new craft without closing window
         CPF.RegisterEvent(MODULE_NAME, "CRAFT_UPDATE", resetFilterOnCraftChange)
 
         -- Hook displaying to use filters
         hooksecurefunc("CraftFrame_Update", showFilteredCrafts)
 
-        -- Expand all headers when we start filtering
+        -- Expand all headers on filter change
         CraftFrame.SearchBox:HookScript("OnTextChanged", expandAllHeadersWhenFiltering)
+        CraftFrame.HaveMats:HookScript("OnClick", expandAllHeadersWhenFiltering)
 
-        -- Apply filter OnTextChanged
+        -- Apply filter on filter change
         CraftFrame.SearchBox:HookScript("OnTextChanged", showFilteredCrafts)
+        CraftFrame.HaveMats:HookScript("OnClick", showFilteredCrafts)
     end)
 end)

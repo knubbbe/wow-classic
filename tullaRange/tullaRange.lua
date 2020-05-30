@@ -7,13 +7,16 @@
 --locals and speed
 local AddonName, Addon = ...
 
-local DB_KEY = 'TULLARANGE_COLORS'
-local UPDATE_DELAY = 0.15
 local ATTACK_BUTTON_FLASH_TIME = _G.ATTACK_BUTTON_FLASH_TIME
+local DB_KEY = 'TULLARANGE_COLORS'
+local UPDATE_DELAY = 0.2
 
+local ActionHasRange = _G.ActionHasRange
+local After = C_Timer.After
+local GetTime = _G.GetTime
 local IsActionInRange = _G.IsActionInRange
+local IsAttackAction = _G.IsAttackAction
 local IsUsableAction = _G.IsUsableAction
-local HasAction = _G.HasAction
 
 --[[
 	Helper Functions
@@ -135,8 +138,6 @@ end
 	Actions
 --]]
 
-local After = C_Timer.After
-
 local function handleUpdate()
 	if Addon:UpdateButtons(GetTime() - Addon.updating) then
 		Addon.updating = GetTime()
@@ -227,7 +228,7 @@ end
 function Addon:UpdateButtonStatus(button)
 	local action = button.action
 
-	if action and button:IsVisible() and HasAction(action) then
+	if action and button:IsVisible() and (ActionHasRange(action) or IsAttackAction(action)) then
 		self.buttonsToUpdate[button] = true
 	else
 		self.buttonsToUpdate[button] = nil

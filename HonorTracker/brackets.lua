@@ -9,6 +9,7 @@ local MAX_BOOTSTRAP_REQUEST_TIME = 3600 * 3
 
 Brackets.bracketToPoints = {0, 400} -- Rank points for each bracket
 Brackets.pointsToRanks = {0, 2000} -- Rank points for each rank
+Brackets.lastSeenInspect = {}
 
 for i=3, 14 do
     Brackets.bracketToPoints[i] = (i - 2) * 1000
@@ -21,6 +22,9 @@ function Brackets:OnLoad()
 end
 
 function Brackets:OnWeeklyReset()
+    self.realmBracketDB.lastWeek.players = CopyTable(self.realmBracketDB.players)
+    self.realmBracketDB.lastWeek.playersMeta = CopyTable(self.realmBracketDB.playersMeta)
+
     self.realmBracketDB.players = {}
     self.realmBracketDB.playersMeta = {}
 
@@ -117,35 +121,46 @@ function Brackets:Estimate(playerName)
     if( not data ) then return end
    
     -- Figure out where the players current standing is
-    local currentStanding = 1
+    local currentStanding = 0
     for _, checkData in pairs(self.realmBracketDB.players) do
-        if( checkData.thisWeek.honor > data.thisWeek.honor ) then
+        if( checkData.thisWeek.honor >= data.thisWeek.honor ) then
             currentStanding = currentStanding + 1
         end
     end
 
     -- Calculate bracket and bracket progress
     local bracketSizes = self:CalculateBrackets()
-    
+
     local bracket = 1
     local innerBracketProgress = 0
-    for i=2, 14 do
-        bracket = i
-
-        -- If our estimated standing is higher than the bracket, we've found out where we are
-        if( currentStanding > bracketSizes[i] ) then
-            innerBracketProgress = (bracketSizes[i - 1] - currentStanding) / (bracketSizes[i - 1] - bracketSizes[i])
-            break
-        end
-    end
+    local rankAward = nil
 
     -- If you're standing 1 and bracket 14, you will always be 100%
-    if( bracket == 14 and currentStanding == 1 ) then
+    if( currentStanding == 1 and bracketSizes[14] > 0 ) then
+        bracket = 14
         innerBracketProgress = 1
+
+        -- Top of bracket 14 gets 13000 points
+        rankAward = 13000
+
+    -- Otherwise try and calculate it
+    else
+        for i=14, 2, -1 do
+            if( currentStanding <= bracketSizes[i] ) then
+                -- If the bracket sizes are 4, 8, 18 then currentStanding of 4 puts us at 14, 5 puts us at 13 and so on.
+                bracket = i
+
+                local priorBracket = (bracketSizes[i + 1] or 0)
+                local totalSize = bracketSizes[i] - priorBracket
+                innerBracketProgress = 1 - ((currentStanding - priorBracket - 1) / (totalSize - 1))
+                break
+            end
+        end
+
+        -- Figure out the awarded amount of points
+        rankAward = self.bracketToPoints[bracket] + (999 * innerBracketProgress)
     end
 
-    -- Figure out the awarded amount of points
-    local rankAward = self.bracketToPoints[bracket] + 1000 * innerBracketProgress
     -- Now factor in diminishing returns
     local estimatedRankPoints = math.floor((data.rankPoints * 0.8) + rankAward + 0.5)
 
@@ -167,7 +182,7 @@ function Brackets:CalculateBrackets()
     -- Brackets 1 -> 14
     local brackets = {1, 0.845, 0.697, 0.566, 0.436, 0.327, 0.228, 0.159, 0.100, 0.060, 0.035, 0.020, 0.008, 0.003} 
     for i=1, 14 do
-        brackets[i] = math.floor((brackets[i] * poolSize))
+        brackets[i] = math.floor((brackets[i] * poolSize) + 0.5)
     end
 
     return brackets
@@ -232,21 +247,28 @@ function Brackets:INSPECT_HONOR_UPDATE()
     end
     
     -- Attempt to filter out inspects which look potentially buggy
-    local inspectTag = string.join(",", GetInspectHonorData())
-    if( self.lastSeenInspect == inspectTag ) then
-        return
+    local rankProgress = GetInspectPVPRankProgress()
+    local inspectTag = string.join(",", GetInspectHonorData()) .. rankProgress
+    if( self.lastSeenInspect[inspectTag] ) then return end
+
+    local now = GetServerTime()
+    self.lastSeenInspect[inspectTag] = now
+
+    -- Expire out tags after 10 minutes
+    for tag, addedAt in pairs(self.lastSeenInspect) do
+        if( (now - addedAt) >= 600 ) then
+            self.lastSeenInspect[tag] = nil
+        end
     end
 
     local todayHK, todayDK, yesterdayHK, yesterdayHonor, thisWeekHK, thisWeekHonor, lastWeekHK, lastWeekHonor, lastWeekStanding, lifetimeHK, lifetimeDK, lifetimeHighestRank = GetInspectHonorData()
     -- Filter out people who are not eligible yet
     if( thisWeekHK < 15 ) then
         self.queuedHonorInspect = nil
-        self.lastSeenInspect = inspectTag
         return
     end
 
     local inspectData = self.queuedHonorInspect
-    local rankProgress = GetInspectPVPRankProgress()
     local rankPoints = Stats:CalculateRankPoints(inspectData.rank, rankProgress)
 
     self.realmBracketDB.playersMeta[inspectData.name] = self.realmBracketDB.playersMeta[inspectData.name] or {}
@@ -256,7 +278,7 @@ function Brackets:INSPECT_HONOR_UPDATE()
 
     self.realmBracketDB.players[inspectData.name] = {
         class = inspectData.class,
-        lastChecked = GetServerTime(),
+        lastChecked = now,
         rankPoints = rankPoints,
         rankProgress = rankProgress,
         rank = inspectData.rank,
@@ -274,7 +296,6 @@ function Brackets:INSPECT_HONOR_UPDATE()
     HonorTracker:Trigger("OnBracketDBUpdate", playerName)
     
     self.queuedHonorInspect = nil
-    self.lastSeenInspect = inspectTag
 end
 
 function Brackets:ConvertFromHonorSpy()
